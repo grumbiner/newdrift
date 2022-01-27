@@ -24,39 +24,60 @@ PROGRAM newdrift
   REAL, allocatable  :: ulat(:,:), ulon(:,:)
   REAL, allocatable  :: dx(:,:), dy(:,:), rot(:,:)
   REAL, allocatable  :: u(:,:), v(:,:)
-  INTEGER i, j, imax, jmax
+
+! Utilities for main
+  INTEGER i, j, imax, jmax, ratio
+  INTEGER n, nstep
 
 !For drifter:
   CLASS(drifter), allocatable :: buoys(:,:)
   
 
-  fname = "cice.nc"
-  CALL initialize(fname, ncid, varid)
-
+! Allocate space for variables and initialize the netcdf reading
   ALLOCATE(allvars(nx, ny, nvar))
   ALLOCATE(ulat(nx, ny), ulon(nx, ny), dx(nx, ny), dy(nx, ny), rot(nx, ny))
   ALLOCATE(u(nx, ny), v(nx, ny))
 
-  CALL read(nx, ny, nvar, ncid, varid, allvars)
-  CALL first(ulat, ulon, dx, dy, rot, nx, ny)
+  fname = "cice.nc"
+  CALL initialize_in(fname, ncid, varid)
 
-  imax = INT(nx/50)
-  jmax = INT(ny/50)
+  !----------- Initialize buoys, this should be a read in 
+  ratio = 90
+  imax = INT(nx/ratio)
+  jmax = INT(ny/ratio)
   ALLOCATE(buoys(imax,jmax))
   DO j = 1, jmax
   DO i = 1, imax
-    buoys(i,j)%x = i*50.
-    buoys(i,j)%y = j*50.
+    buoys(i,j)%x = i*ratio
+    buoys(i,j)%y = j*ratio
   ENDDO
   ENDDO
 
+!----------------------------------------------------------------
+
+! First time step:
+  CALL read(nx, ny, nvar, ncid, varid, allvars)
+  CALL local_metric(ulat, ulon, dx, dy, rot, nx, ny)
   DO j = 1, jmax
   DO i = 1, imax
-    !CALL buoys(i,j)%move(buoys(i,j), u, v, dx, dy, dt, nx, ny)
-
     CALL buoys(i,j)%move(dt, nx, ny)
   ENDDO
   ENDDO
+
+! Iterate
+  nstep = 1
+  DO n = 2, nstep
+    CALL read(nx, ny, nvar, ncid, varid, allvars)
+    DO j = 1, jmax
+    DO i = 1, imax
+      CALL buoys(i,j)%move(dt, nx, ny)
+    ENDDO
+    ENDDO
+  ENDDO
+
+!----------------------------------------------------------------
+! Write out results -- drift distance and direction
+
 
 
 END program newdrift

@@ -1,4 +1,4 @@
-SUBROUTINE initialize(fname, ncid, varid)
+SUBROUTINE initialize_in(fname, ncid, varid)
   USE netcdf
 
   IMPLICIT none
@@ -56,22 +56,7 @@ SUBROUTINE initialize(fname, ncid, varid)
   ENDDO
 
 RETURN
-END subroutine initialize 
-
-SUBROUTINE first(ulat, ulon, dx, dy, rot, nx, ny)
-  IMPLICIT none
-
-  INTEGER, intent(in) :: nx, ny
-  REAL, intent(in)    :: ulat(nx, ny), ulon(nx, ny)
-  REAL, intent(out)   :: dx(nx, ny), dy(nx, ny), rot(nx, ny)
-! need to find the dx/dy values to the next point (i+1, j+1)
-! also rotation between grid orientation and geographic
-  dx = ulat
-  dy = ulon
-  rot = 0
-
-  RETURN
-END subroutine first
+END subroutine initialize_in
 
 SUBROUTINE read(nx, ny, nvars, ncid, varid, allvars)
   USE netcdf
@@ -106,3 +91,13 @@ SUBROUTINE check(status)
   ENDIF
   RETURN
 END subroutine check
+SUBROUTINE initialize_out(fname, ncid, varid, nvar)
+  USE netcdf
+  IMPLICIT none
+  CHARACTER(*) fname
+  INTEGER ncid, nvar
+  INTEGER varid(nvar)
+
+
+  RETURN
+END subroutine initialize_out

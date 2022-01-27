@@ -51,7 +51,7 @@ CONTAINS
     buoy%y = buoy%y + deltay
 
   RETURN
-  END
+  END subroutine move
 
 
 END MODULE drifter_mod
