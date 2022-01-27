@@ -1,6 +1,11 @@
-SUBROUTINE initialize_in(fname, ncid, varid)
+MODULE io
   USE netcdf
+  USE drifter_mod
+  PUBLIC
 
+CONTAINS
+
+SUBROUTINE initialize_in(fname, ncid, varid)
   IMPLICIT none
 
   CHARACTER(*) fname
@@ -59,8 +64,6 @@ RETURN
 END subroutine initialize_in
 
 SUBROUTINE read(nx, ny, nvars, ncid, varid, allvars)
-  USE netcdf
-
   IMPLICIT none
   INTEGER, intent(in) :: nx, ny, nvars, ncid, varid(nvars)
   REAL, intent(out)   :: allvars(nx, ny, nvars)
@@ -82,7 +85,6 @@ END
 
 !utility for netcdf
 SUBROUTINE check(status)
-  USE netcdf
   IMPLICIT none
   INTEGER, intent(in) :: status
   IF (status /= nf90_noerr) THEN
@@ -91,13 +93,78 @@ SUBROUTINE check(status)
   ENDIF
   RETURN
 END subroutine check
-SUBROUTINE initialize_out(fname, ncid, varid, nvar)
-  USE netcdf
+
+
+SUBROUTINE initialize_out(fname, ncid, varid, nvar, nx, ny, dimids)
   IMPLICIT none
   CHARACTER(*) fname
-  INTEGER ncid, nvar
+  INTEGER ncid, nvar, nx, ny
   INTEGER varid(nvar)
+  CHARACTER(90) varnames(nvar)
+  INTEGER dimids(2)
+
+  INTEGER i, retcode
+  INTEGER x_dimid, y_dimid
+!names: 
+  varnames(1) = "Initial_Latitude"
+  varnames(2) = "Initial_Longitude"
+  varnames(3) = "Final_Latitude"
+  varnames(4) = "Final_Longitude"
+  varnames(5) = "Drift_Distance"
+  varnames(6) = "Drift_Bearing"
+  
+! open
+  retcode = nf90_create(fname, NF90_NOCLOBBER, ncid)
+  CALL check(retcode)
+! dimensionalize
+  retcode = nf90_def_dim(ncid, "nx", nx, x_dimid)
+  CALL check(retcode)
+  retcode = nf90_def_dim(ncid, "ny", ny, y_dimid)
+  CALL check(retcode)
+  dimids = (/ y_dimid, x_dimid /)
+
+! assign varid to varnames
+  DO i = 1, nvar
+    retcode = nf90_def_var(ncid, varnames(i), NF90_REAL, dimids, varid(i))
+    CALL check(retcode)
+  ENDDO
+
+  retcode = nf90_enddef(ncid)
+  CALL check(retcode)
 
 
   RETURN
 END subroutine initialize_out
+
+SUBROUTINE outvars(ncid, varid, nvar, buoys, imax, jmax, dimids)
+  IMPLICIT none
+  INTEGER ncid, nvar
+  INTEGER varid(nvar), dimids(2)
+  INTEGER imax, jmax
+  CLASS(drifter) :: buoys(imax, jmax)
+  INTEGER retcode
+
+  REAL, allocatable :: var(:,:)
+  INTEGER i,j
+
+  ALLOCATE(var(imax, jmax))
+! retcode = nf90_put_var(ncid, varid(i), var)
+! CALL check(retcode)
+
+
+
+  RETURN
+END subroutine outvars
+
+SUBROUTINE close_out(ncid)
+  IMPLICIT none
+  INTEGER ncid
+  INTEGER retcode
+
+  retcode = nf90_close(ncid)
+  CALL check(retcode)
+
+  RETURN
+END subroutine close_out
+
+END module io

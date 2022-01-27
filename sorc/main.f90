@@ -2,15 +2,17 @@ PROGRAM newdrift
   !USE netcdf
 
   USE drifter_mod
+  USE io
 
   IMPLICIT none
 
-  CHARACTER(90) fname
-
-! Names from rtofs output
-  INTEGER nvar
+! Netcdf-related
+  INTEGER nvar, nvar_out
   PARAMETER (nvar = 24)
+  PARAMETER (nvar_out = 6)
   INTEGER ncid, varid(nvar)
+  INTEGER ncid_out, varid_out(nvar_out)
+  INTEGER dimids(2)
 !
   INTEGER nx, ny
   PARAMETER (nx = 4500)
@@ -20,7 +22,7 @@ PROGRAM newdrift
   PARAMETER (dt = 3600.) !seconds
 
   REAL, allocatable :: allvars(:,:,:)
-! nx*ny large enough to require -frecursive in gfortran
+! nx*ny large enough to require -frecursive in gfortran if nx,ny specified here
   REAL, allocatable  :: ulat(:,:), ulon(:,:)
   REAL, allocatable  :: dx(:,:), dy(:,:), rot(:,:)
   REAL, allocatable  :: u(:,:), v(:,:)
@@ -31,6 +33,9 @@ PROGRAM newdrift
 
 !For drifter:
   CLASS(drifter), allocatable :: buoys(:,:)
+!
+  CHARACTER(90) fname
+
   
 
 ! Allocate space for variables and initialize the netcdf reading
@@ -50,6 +55,8 @@ PROGRAM newdrift
   DO i = 1, imax
     buoys(i,j)%x = i*ratio
     buoys(i,j)%y = j*ratio
+    buoys(i,j)%lat = ulat(i*ratio, j*ratio)
+    buoys(i,j)%lon = ulon(i*ratio, j*ratio)
   ENDDO
   ENDDO
 
@@ -60,7 +67,7 @@ PROGRAM newdrift
   CALL local_metric(ulat, ulon, dx, dy, rot, nx, ny)
   DO j = 1, jmax
   DO i = 1, imax
-    CALL buoys(i,j)%move(dt, nx, ny)
+    CALL buoys(i,j)%move(u, v, dx, dy, dt, nx, ny)
   ENDDO
   ENDDO
 
@@ -70,13 +77,19 @@ PROGRAM newdrift
     CALL read(nx, ny, nvar, ncid, varid, allvars)
     DO j = 1, jmax
     DO i = 1, imax
-      CALL buoys(i,j)%move(dt, nx, ny)
+      CALL buoys(i,j)%move(u, v, dx, dy, dt, nx, ny)
     ENDDO
     ENDDO
   ENDDO
 
 !----------------------------------------------------------------
 ! Write out results -- drift distance and direction
+  fname = "output.nc"
+  CALL initialize_out(fname, ncid_out, varid_out, nvar_out, imax, jmax, dimids)
+
+  CALL outvars(ncid_out, varid_out, nvar_out, buoys, imax, jmax, dimids)
+
+  CALL close_out(ncid_out)
 
 
 
