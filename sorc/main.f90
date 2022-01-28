@@ -50,13 +50,16 @@ PROGRAM newdrift
   ratio = 90
   imax = INT(nx/ratio)
   jmax = INT(ny/ratio)
+!RG: go to 1d list of points
   ALLOCATE(buoys(imax,jmax))
   DO j = 1, jmax
   DO i = 1, imax
     buoys(i,j)%x = i*ratio
     buoys(i,j)%y = j*ratio
-    buoys(i,j)%lat = ulat(i*ratio, j*ratio)
-    buoys(i,j)%lon = ulon(i*ratio, j*ratio)
+    buoys(i,j)%ilat = ulat(i*ratio, j*ratio)
+    buoys(i,j)%ilon = ulon(i*ratio, j*ratio)
+    buoys(i,j)%clat = i*ratio
+    buoys(i,j)%clon = j*ratio
   ENDDO
   ENDDO
 
@@ -87,10 +90,8 @@ PROGRAM newdrift
   fname = "output.nc"
   CALL initialize_out(fname, ncid_out, varid_out, nvar_out, imax, jmax, dimids)
 
-  CALL outvars(ncid_out, varid_out, nvar_out, buoys, imax, jmax, dimids)
+  CALL outvars(ncid_out, varid_out, nvar_out, buoys, imax, jmax)
 
   CALL close_out(ncid_out)
-
-
 
 END program newdrift

@@ -122,6 +122,7 @@ SUBROUTINE initialize_out(fname, ncid, varid, nvar, nx, ny, dimids)
   retcode = nf90_def_dim(ncid, "ny", ny, y_dimid)
   CALL check(retcode)
   dimids = (/ y_dimid, x_dimid /)
+  !debug PRINT *,'initialize dimids ',dimids, x_dimid, y_dimid
 
 ! assign varid to varnames
   DO i = 1, nvar
@@ -136,22 +137,43 @@ SUBROUTINE initialize_out(fname, ncid, varid, nvar, nx, ny, dimids)
   RETURN
 END subroutine initialize_out
 
-SUBROUTINE outvars(ncid, varid, nvar, buoys, imax, jmax, dimids)
+SUBROUTINE outvars(ncid, varid, nvar, buoys, imax, jmax)
   IMPLICIT none
   INTEGER ncid, nvar
-  INTEGER varid(nvar), dimids(2)
+  INTEGER varid(nvar)
   INTEGER imax, jmax
   CLASS(drifter) :: buoys(imax, jmax)
+
   INTEGER retcode
-
-  REAL, allocatable :: var(:,:)
+  REAL, allocatable :: var(:,:,:)
   INTEGER i,j
+  REAL distance, bearing
 
-  ALLOCATE(var(imax, jmax))
-! retcode = nf90_put_var(ncid, varid(i), var)
-! CALL check(retcode)
+!Note that netcdf dimensions are in C order, not fortran
+  ALLOCATE(var(jmax, imax, nvar))
+  distance = 0.
+  bearing = 0.
 
+  DO j = 1, jmax
+  DO i = 1, imax
+    var(j,i,1) = buoys(i,j)%ilat
+    var(j,i,2) = buoys(i,j)%ilon
+    var(j,i,3) = buoys(i,j)%clat
+    !debug PRINT *,'i,j,clat ',i,j,var(i,j,3)
+    var(j,i,4) = buoys(i,j)%clon
+! CALL distbear(var(j,i,1), var(j,i,2), var(j,i,3), var(j,i,4), distance, bearing)
+    var(j,i,5) = distance
+    var(j,i,6) = bearing
+  ENDDO
+  ENDDO
 
+  !debug PRINT *,'about to try to put vars'
+  DO i = 1, nvar
+    !debug PRINT *,i, varid(i)
+    retcode = nf90_put_var(ncid, varid(i), var(:,:,i) )
+    !debug PRINT *,retcode
+    CALL check(retcode)
+  ENDDO
 
   RETURN
 END subroutine outvars

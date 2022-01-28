@@ -6,8 +6,9 @@ MODULE drifter_mod
 
   IMPLICIT none
   TYPE, public :: drifter
-    REAL x, y
-    REAL lat, lon
+    REAL x, y        ! current i,j location
+    REAL ilat, ilon  ! initial latitude-longitude
+    REAL clat, clon  ! current latitude-longitude
   CONTAINS
     PROCEDURE, pass :: move
   END TYPE drifter
