@@ -1,14 +1,24 @@
 !haversine arcdis
 !  http://www.movable-type.co.uk/scripts/gis-faq-5.1.html
-!assumes lat lon in degrees
+!assumes lat lon in degrees, distance in km
+REAL FUNCTION rearth(lat)
+  IMPLICIT none
+  REAL, intent(in) :: lat
+  REAL pi, rpd
+  PARAMETER(pi = 3.141592653589793 )
+  PARAMETER(rpd = pi/180.)
+  rearth = (6378.137 - 21.385*sin(lat*rpd) )
+  RETURN
+END function rearth
+
 REAL FUNCTION harcdis(lat1, lon1, lat2, lon2)
   IMPLICIT none
   REAL lat1, lon1, lat2, lon2
   REAL dlat, dlon, mlat
-  REAL pi, rpd, a, c, d, R
+  REAL pi, rpd
   PARAMETER(pi = 3.141592653589793 )
   PARAMETER(rpd = pi/180.)
-  !PARAMETER(R  = 6371.2) ! km
+  REAL a, c
 
   dlon = lon2 - lon1
   dlat = lat2 - lat1
@@ -17,16 +27,59 @@ REAL FUNCTION harcdis(lat1, lon1, lat2, lon2)
   a = sin(dlat*rpd/2)**2 + cos(lat1*rpd)*cos(lat2*rpd)*sin(dlon*rpd/2)**2
   c = 2.*asin(min(1.,sqrt(a)))
 
-! approximating ellipsoidal flattening
-  harcdis = c * (6378 - 21.*sin(mlat*rpd) )
+! approximating ellipsoidal flattening RG WGS84
+  harcdis = c * (6378.137 - 21.385*sin(mlat*rpd) )
   RETURN 
 END function harcdis
 
 !bearing
 !  convert_bw (bearing to weather direction convention)
 !  convert_wb (converse)
+
+! Bearing/unbearing from movable type:
 !  bearing    (convert lat-lon pair to distance/bearing)
 !  unbearing  (convert distance,bearing and starting point to final point)
+SUBROUTINE bearing(lat1, lon1, lat2, lon2, dist, dir)
+  IMPLICIT none
+  REAL, intent(in) :: lat1, lon1, lat2, lon2
+  REAL, intent(out) :: dist, dir
+  REAL harcdis
+  REAL pi, rpd
+  PARAMETER(pi = 3.141592653589793 )
+  PARAMETER(rpd = pi/180.)
+
+  dist = harcdis(lat1, lon1, lat2, lon2)
+  dir  = atan2(sin((lon1-lon2)*rpd)*cos(lat2*rpd) , &
+               cos(lat1*rpd)*sin(lat2*rpd) -        &
+               sin(lat1*rpd)*cos(lat2*rpd)*cos((lon1-lon2)*rpd) )
+  dir = dir / rpd
+  IF (dir < 0.) THEN
+    dir = dir + 360.
+  ENDIF
+
+RETURN
+END subroutine bearing
+
+!dist in km, rearth in km
+SUBROUTINE unbearing(lat1, lon1, dist, dir, lat2, lon2)
+  IMPLICIT none
+  REAL, intent(in) :: lat1, lon1, dist, dir
+  REAL, intent(out) :: lat2, lon2
+  REAL pi, rpd
+  PARAMETER(pi = 3.141592653589793 )
+  PARAMETER(rpd = pi/180.)
+  REAL theta, R, rearth
+  theta = dir*rpd
+  R = rearth(lat1)
+  lat2 = asin( sin(lat1*rpd)*cos(dist/R) + &
+               cos(lat1*rpd)*sin(dist/R)*cos(dir*rpd) ) / rpd
+  lon2 = lon1 + atan2(sin(theta)*sin(dist/R)*cos(lat1*rpd) ,  &
+                      cos(dist/R)-sin(lat1*rpd)*sin(lat2*rpd) ) / rpd
+RETURN
+END subroutine unbearing
+!wdir
+
+
 !grid rotation
 
 !lat, lon in degrees

@@ -47,7 +47,7 @@ PROGRAM newdrift
   CALL initialize_in(fname, ncid, varid)
 
   !----------- Initialize buoys, this should be a read in 
-  ratio = 90
+  ratio = 5
   imax = INT(nx/ratio)
   jmax = INT(ny/ratio)
 !RG: go to 1d list of points

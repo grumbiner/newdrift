@@ -147,12 +147,12 @@ SUBROUTINE outvars(ncid, varid, nvar, buoys, imax, jmax)
   INTEGER retcode
   REAL, allocatable :: var(:,:,:)
   INTEGER i,j
-  REAL distance, bearing
+  REAL distance, bear
 
 !Note that netcdf dimensions are in C order, not fortran
   ALLOCATE(var(jmax, imax, nvar))
   distance = 0.
-  bearing = 0.
+  bear = 0.
 
   DO j = 1, jmax
   DO i = 1, imax
@@ -161,15 +161,15 @@ SUBROUTINE outvars(ncid, varid, nvar, buoys, imax, jmax)
     var(j,i,3) = buoys(i,j)%clat
     !debug PRINT *,'i,j,clat ',i,j,var(i,j,3)
     var(j,i,4) = buoys(i,j)%clon
-! CALL distbear(var(j,i,1), var(j,i,2), var(j,i,3), var(j,i,4), distance, bearing)
+    CALL bearing(var(j,i,1), var(j,i,2), var(j,i,3), var(j,i,4), distance, bear)
     var(j,i,5) = distance
-    var(j,i,6) = bearing
+    var(j,i,6) = bear
   ENDDO
   ENDDO
 
   !debug PRINT *,'about to try to put vars'
   DO i = 1, nvar
-    !debug PRINT *,i, varid(i)
+    !debug PRINT *,i, varid(i), MAXVAL(var(:,:,i)), MINVAL(var(:,:,i))
     retcode = nf90_put_var(ncid, varid(i), var(:,:,i) )
     !debug PRINT *,retcode
     CALL check(retcode)
