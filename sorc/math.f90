@@ -1,23 +1,34 @@
+MODULE constants
+  PUBLIC
+  REAL pi, rpd
+  PARAMETER(pi = 3.141592653589793 )
+  PARAMETER(rpd = pi/180.)
+
+  REAL nansen_ampl, nansen_rotation
+  PARAMETER (nansen_ampl = 1.468e-2)
+  PARAMETER (nansen_rotation = 28.0)
+
+  REAL kmtonm
+  PARAMETER (kmtonm = 1. /  1.852 )
+
+END module constants
+
 !haversine arcdis
 !  http://www.movable-type.co.uk/scripts/gis-faq-5.1.html
 !assumes lat lon in degrees, distance in km
 REAL FUNCTION rearth(lat)
+  USE constants
   IMPLICIT none
   REAL, intent(in) :: lat
-  REAL pi, rpd
-  PARAMETER(pi = 3.141592653589793 )
-  PARAMETER(rpd = pi/180.)
   rearth = (6378.137 - 21.385*sin(lat*rpd) )
   RETURN
 END function rearth
 
 REAL FUNCTION harcdis(lat1, lon1, lat2, lon2)
+  USE constants
   IMPLICIT none
   REAL lat1, lon1, lat2, lon2
   REAL dlat, dlon, mlat
-  REAL pi, rpd
-  PARAMETER(pi = 3.141592653589793 )
-  PARAMETER(rpd = pi/180.)
   REAL a, c
 
   dlon = lon2 - lon1
@@ -40,13 +51,11 @@ END function harcdis
 !  bearing    (convert lat-lon pair to distance/bearing)
 !  unbearing  (convert distance,bearing and starting point to final point)
 SUBROUTINE bearing(lat1, lon1, lat2, lon2, dist, dir)
+  USE constants
   IMPLICIT none
   REAL, intent(in) :: lat1, lon1, lat2, lon2
   REAL, intent(out) :: dist, dir
   REAL harcdis
-  REAL pi, rpd
-  PARAMETER(pi = 3.141592653589793 )
-  PARAMETER(rpd = pi/180.)
 
   dist = harcdis(lat1, lon1, lat2, lon2)
   dir  = atan2(sin((lon1-lon2)*rpd)*cos(lat2*rpd) , &
@@ -62,13 +71,12 @@ END subroutine bearing
 
 !dist in km, rearth in km
 SUBROUTINE unbearing(lat1, lon1, dist, dir, lat2, lon2)
+  USE constants
   IMPLICIT none
   REAL, intent(in) :: lat1, lon1, dist, dir
   REAL, intent(out) :: lat2, lon2
-  REAL pi, rpd
-  PARAMETER(pi = 3.141592653589793 )
-  PARAMETER(rpd = pi/180.)
   REAL theta, R, rearth
+
   theta = dir*rpd
   R = rearth(lat1)
   lat2 = asin( sin(lat1*rpd)*cos(dist/R) + &
@@ -113,28 +121,26 @@ END subroutine local_metric
 
 
 SUBROUTINE local_cartesian(ulat, dx, dy, nx, ny)
+  USE constants
   IMPLICIT none
   INTEGER, intent(in) :: nx, ny
   REAL, intent(in)    :: ulat(nx, ny)
   REAL, intent(out)   :: dx(nx, ny), dy(nx, ny)
 
   INTEGER i, j
-  REAL d2r
 
   !debug PRINT *,'in local cartesian'
-
-  d2r = 3.141592653589793 / 180.
 
 ! From WGS84 via Amy Solomon, ESRL
 ! Meters per degree
   DO j = 1, ny
   DO i = 1, nx
-    dy(i,j) = 111132.92 - 559.82*cos(2*ulat(i,j)*d2r) + &
-                           1.175*cos(4*ulat(i,j)*d2r) - &
-                          0.0023*cos(6*ulat(i,j)*d2r)
-    dx(i,j) = 111412.84*cos(  ulat(i,j)*d2r) - &
-                   93.5*cos(3*ulat(i,j)*d2r) + &
-                  0.118*cos(5*ulat(i,j)*d2r)
+    dy(i,j) = 111132.92 - 559.82*cos(2*ulat(i,j)*rpd) + &
+                           1.175*cos(4*ulat(i,j)*rpd) - &
+                          0.0023*cos(6*ulat(i,j)*rpd)
+    dx(i,j) = 111412.84*cos(  ulat(i,j)*rpd) - &
+                   93.5*cos(3*ulat(i,j)*rpd) + &
+                  0.118*cos(5*ulat(i,j)*rpd)
   ENDDO
   ENDDO
 
@@ -143,21 +149,4 @@ END subroutine local_cartesian
 
 
 !Bilinear interpolation to buoy.x,y
-
-SUBROUTINE parms
-!Parameters:
-  REAL kmtonm
-  PARAMETER (kmtonm = 1. /  1.852 )
-
-  REAL pi, d2r, rpd
-  PARAMETER (pi = 3.141592653589793)
-  PARAMETER (d2r = pi/180.)
-  PARAMETER (rpd = d2r)
-
-  REAL nansen_ampl, nansen_rotation
-  PARAMETER (nansen_ampl = 1.468e-2)
-  PARAMETER (nansen_rotation = 28.0)
-
-RETURN
-END subroutine parms
 
