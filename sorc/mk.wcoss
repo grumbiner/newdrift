@@ -1,0 +1,6 @@
+
+include mk.all
+
+FOPTS = -c -std08 -I $(NETCDF_INC)
+FC = ifort
+

@@ -1,0 +1,9 @@
+
+include mk.all
+
+FOPTS = -c -Wall -std=f2008 $(NETCDF_INC)
+FC = ifort
+
+all : $(OBJ)
+	$(FC) $(OBJ)  $(NETCDF_LIB) -l netcdff -o all
+

@@ -1,0 +1,8 @@
+
+clean :
+	rm *.o *.mod all output.nc
+
+%.o: %.f90
+	$(FC) $(FOPTS) $< -o $(@)
+%.o: %.F90
+	$(FC) $(FOPTS) $< -o $(@)
