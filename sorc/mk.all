@@ -1,6 +1,9 @@
 
 clean :
-	rm *.o *.mod all output.nc
+	rm *.o *.mod output.nc
+
+distclean : clean
+	rm all
 
 %.o: %.f90
 	$(FC) $(FOPTS) $< -o $(@)
