@@ -1,0 +1,17 @@
+
+include mk.all
+
+#modules :
+#	module load intel/19.1.3.304
+#	module load netcdf/4.7.4
+#	module load PrgEnv-intel/8.2.0
+#
+#	echo ifort = `which ifort`
+#	echo ftn = `which ftn`
+#
+
+FOPTS = -c -std08 -I $(NETCDF_INCLUDES)
+LIBDIRS = -L $(NETCDF_LIBRARIES)
+
+FC = ifort
+
