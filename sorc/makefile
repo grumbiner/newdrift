@@ -1,6 +1,6 @@
 OBJ = math.o drifter.o io_nc.o main.o 
 
-include mk.wcoss2
+include mk.hera
 
 all : $(OBJ)
 	$(FC) $(OBJ)  $(LIBDIRS)  -l netcdff -o all
