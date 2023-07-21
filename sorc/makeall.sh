@@ -1,11 +1,10 @@
 #!/bin/bash
 
 #modules :
-module load PrgEnv-intel/8.3.3
+#module load PrgEnv-intel/8.3.3
+module load intel-classic/2022.2.0.262
 module load netcdf/4.7.4
-module load intel/19.1.3.304
 
-echo ifort = `which ifort`
-ftn = `which ftn`
+echo zzz ifort = `which ifort`
 
 make

@@ -50,15 +50,21 @@ SUBROUTINE initialize_in(fname, ncid, varid)
   varnames(22) = "strength"
   varnames(23) = "divu"
   varnames(24) = "Tair"
+!Debug:
+  PRINT *,"named all 24 variables"
 
   retcode = nf90_open(fname, NF90_NOWRITE, ncid)
   CALL check(retcode)
+!Debug:
+  PRINT *,"opened fname",fname
 
   DO i = 1, nvar
     PRINT *,i,varnames(i)
     retcode = nf90_inq_varid(ncid, varnames(i), varid(i))
     CALL check(retcode)
   ENDDO
+!Debug:
+  PRINT *,"done assigning varids"
 
 RETURN
 END subroutine initialize_in
@@ -73,11 +79,15 @@ SUBROUTINE read(nx, ny, nvars, ncid, varid, allvars)
   !debug PRINT *,'entered read'
 
   DO i = 1, nvars
-    !debug PRINT *,i,"calling nf90 get var"
+    !debug 
+    PRINT *,i,"calling nf90 get var"
+
     retcode = nf90_get_var(ncid, varid(i), allvars(:,:,i) )
     CALL check(retcode)
     PRINT *,i, MAXVAL(allvars(:,:,i)), MINVAL(allvars(:,:,i))
   ENDDO
+  !debug:
+  PRINT *,'leaving read'
     
   RETURN
 END
