@@ -149,10 +149,10 @@ END subroutine initialize_out
 
 SUBROUTINE outvars(ncid, varid, nvar, buoys, imax, jmax)
   IMPLICIT none
-  INTEGER ncid, nvar
-  INTEGER varid(nvar)
-  INTEGER imax, jmax
-  CLASS(drifter) :: buoys(imax, jmax)
+  INTEGER, intent(in) :: ncid, nvar
+  INTEGER, intent(in) :: varid(nvar)
+  INTEGER, intent(in) :: imax, jmax
+  CLASS(drifter), intent(in) :: buoys(imax, jmax)
 
   INTEGER retcode
   REAL, allocatable :: var(:,:,:)
@@ -177,13 +177,19 @@ SUBROUTINE outvars(ncid, varid, nvar, buoys, imax, jmax)
   ENDDO
   ENDDO
 
-  !debug PRINT *,'about to try to put vars'
+  !debug 
+  PRINT *,'about to try to put vars'
   DO i = 1, nvar
-    !debug PRINT *,i, varid(i), MAXVAL(var(:,:,i)), MINVAL(var(:,:,i))
+    !debug 
+    PRINT *,i, varid(i), MAXVAL(var(:,:,i)), MINVAL(var(:,:,i))
     retcode = nf90_put_var(ncid, varid(i), var(:,:,i) )
-    !debug PRINT *,retcode
+    !debug 
+    PRINT *,i, retcode
     CALL check(retcode)
   ENDDO
+
+  !debug
+  PRINT *,'leaving outvar'
 
   RETURN
 END subroutine outvars

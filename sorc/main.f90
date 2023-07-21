@@ -74,6 +74,10 @@ PROGRAM newdrift
   ENDDO
   ENDDO
 
+  CALL outvars(ncid_out, varid_out, nvar_out, buoys, imax, jmax)
+  CALL close_out(ncid_out)
+
+STOP "debug output"
 !----------------------------------------------------------------
 ! sbr(buoys, u, v, dx, dy, dt, nx, ny, nstep, nvar, ncid, varid, allvars)
 
