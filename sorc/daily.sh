@@ -27,6 +27,6 @@ for fh in f24
 do
   fname=rtofs.${PDY}/rtofs_glo.t00z.${fh}.cice_inst
   ln -sf ${COMin}/$fname cice.nc
-  ./all
+  cat input | ./all
 done
 

@@ -174,19 +174,15 @@ SUBROUTINE outvars(ncid, varid, nvar, buoys, imax, jmax)
   ENDDO
   ENDDO
 
-  !debug 
-  PRINT *,'about to try to put vars'
+  !debug PRINT *,'about to try to put vars'
   DO i = 1, nvar
-    !debug 
-    PRINT *,"nc putting ",i, varid(i), MAXVAL(var(:,:,i)), MINVAL(var(:,:,i))
+    !debug PRINT *,"nc putting ",i, varid(i), MAXVAL(var(:,:,i)), MINVAL(var(:,:,i))
     retcode = nf90_put_var(ncid, varid(i), var(:,:,i) )
-    !debug 
-    PRINT *,i, retcode
+    !debug PRINT *,i, retcode
     CALL check(retcode)
   ENDDO
 
-  !debug
-  PRINT *,'leaving outvar'
+  !debug PRINT *,'leaving outvar'
 
   RETURN
 END subroutine outvars
