@@ -7,12 +7,13 @@ PROGRAM newdrift
   IMPLICIT none
 
 ! Netcdf-related
-  INTEGER nvar, nvar_out
+  INTEGER nvar, nvar_out, nvar_drift
   PARAMETER (nvar = 24)
   PARAMETER (nvar_out = 6)
+  PARAMETER (nvar_drift = 2)
   INTEGER ncid, varid(nvar)
   INTEGER ncid_out, ncid_drift
-  INTEGER varid_out(nvar_out), varid_driftic(nvar_out)
+  INTEGER varid_out(nvar_out), varid_driftic(nvar_drift)
   INTEGER dimids(2)
 !
   INTEGER nx, ny
@@ -46,9 +47,17 @@ PROGRAM newdrift
 ! Forcing / velocities
   fname = "cice.nc"
   CALL initialize_in(fname, ncid, varid)
+  !debug PRINT *,'varid = ',varid
+
   !Get first set of data and construct the local metric for drifting
   CALL read(nx, ny, nvar, ncid, varid, allvars)
+  ulon = allvars(:,:,3)
+  ulat = allvars(:,:,4)
+  u    = allvars(:,:,9)
+  v    = allvars(:,:,10)
+  PRINT *,"ulat, ulon max = ",MAXVAL(ulat), MAXVAL(ulon)
   CALL local_metric(ulat, ulon, dx, dy, rot, nx, ny)
+  PRINT *,"dx, dy max = ",MAXVAL(dx), MAXVAL(dy)
 
 ! Initialize Output -- need definite sizes
   outname = "output.nc"
@@ -72,12 +81,14 @@ PROGRAM newdrift
     buoys(i,j)%clat = i*ratio
     buoys(i,j)%clon = j*ratio
   ENDDO
+  !debug: PRINT *,1,j,buoys(1,j)%ilat ,  buoys(1,j)%ilon 
   ENDDO
 
+!debug
   CALL outvars(ncid_out, varid_out, nvar_out, buoys, imax, jmax)
-  CALL close_out(ncid_out)
+!debug  CALL close_out(ncid_out)
 
-STOP "debug output"
+!debug STOP "debug output"
 !----------------------------------------------------------------
 ! sbr(buoys, u, v, dx, dy, dt, nx, ny, nstep, nvar, ncid, varid, allvars)
 
@@ -92,6 +103,8 @@ STOP "debug output"
   nstep = 1
   DO n = 2, nstep
     CALL read(nx, ny, nvar, ncid, varid, allvars)
+    u = allvars(:,:,9)
+    v = allvars(:,:,10)
     DO j = 1, jmax
     DO i = 1, imax
       CALL buoys(i,j)%move(u, v, dx, dy, dt, nx, ny)

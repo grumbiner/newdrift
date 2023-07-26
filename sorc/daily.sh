@@ -5,6 +5,15 @@ module load intel-classic/2022.2.0.262
 
 module load netcdf/4.7.4
 
+#debug: ensure a new implementation is built
+rm all
+if [ ! -f all ] ; then
+  ./makeall.sh
+fi
+if [ ! -f all ] ; then
+  echo could not build executable
+  exit 1
+fi
 
 export COMin=$HOME/noscrub/model_intercompare/rtofs_cice/
 export PDY=20230718

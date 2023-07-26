@@ -63,8 +63,7 @@ SUBROUTINE initialize_in(fname, ncid, varid)
     retcode = nf90_inq_varid(ncid, varnames(i), varid(i))
     CALL check(retcode)
   ENDDO
-!Debug:
-  PRINT *,"done assigning varids"
+!Debug: PRINT *,"done assigning varids"
 
 RETURN
 END subroutine initialize_in
@@ -79,15 +78,13 @@ SUBROUTINE read(nx, ny, nvars, ncid, varid, allvars)
   !debug PRINT *,'entered read'
 
   DO i = 1, nvars
-    !debug 
-    PRINT *,i,"calling nf90 get var"
+    !debug PRINT *,i,"calling nf90 get var"
 
     retcode = nf90_get_var(ncid, varid(i), allvars(:,:,i) )
     CALL check(retcode)
     PRINT *,i, MAXVAL(allvars(:,:,i)), MINVAL(allvars(:,:,i))
   ENDDO
-  !debug:
-  PRINT *,'leaving read'
+  !debug: PRINT *,'leaving read'
     
   RETURN
 END
@@ -181,7 +178,7 @@ SUBROUTINE outvars(ncid, varid, nvar, buoys, imax, jmax)
   PRINT *,'about to try to put vars'
   DO i = 1, nvar
     !debug 
-    PRINT *,i, varid(i), MAXVAL(var(:,:,i)), MINVAL(var(:,:,i))
+    PRINT *,"nc putting ",i, varid(i), MAXVAL(var(:,:,i)), MINVAL(var(:,:,i))
     retcode = nf90_put_var(ncid, varid(i), var(:,:,i) )
     !debug 
     PRINT *,i, retcode
