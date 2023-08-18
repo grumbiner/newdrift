@@ -1,4 +1,4 @@
-OBJ = math.o drifter.o io_nc.o main.o 
+OBJ = math.o drifter.o io_nc.o main.o read.o 
 
 include mk.hera
 

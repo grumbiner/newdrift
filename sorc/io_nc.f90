@@ -5,21 +5,15 @@ MODULE io
 
 CONTAINS
 
-SUBROUTINE initialize_in(fname, ncid, varid)
+SUBROUTINE initialize_in(nvar, fname, ncid, varid, nx, ny)
   IMPLICIT none
 
   CHARACTER(*) fname
-  INTEGER ncid
-
-  INTEGER nx, ny
-! Dimensions from cice_inst output of rtofs
-  PARAMETER (nx = 4500)
-  PARAMETER (ny = 3297)
+  INTEGER ncid, nvar
+  INTEGER, intent(out) :: nx, ny
 
 ! Names from rtofs output
-  INTEGER nvar
-  PARAMETER (nvar = 24)
-  CHARACTER(len=90) :: varnames(nvar)
+  CHARACTER(len=40) :: varnames(nvar)
   INTEGER varid(nvar)
   
 ! For Netcdf processing
@@ -59,18 +53,25 @@ SUBROUTINE initialize_in(fname, ncid, varid)
     retcode = nf90_inq_varid(ncid, varnames(i), varid(i))
     CALL check(retcode)
   ENDDO
+  nx = 4500
+  ny = 3297
+
+  !debug: PRINT *,'leaving initialize_in'
 
 RETURN
 END subroutine initialize_in
 
 SUBROUTINE read(nx, ny, nvars, ncid, varid, allvars)
   IMPLICIT none
-  INTEGER, intent(in) :: nx, ny, nvars, ncid, varid(nvars)
-  REAL, intent(out)   :: allvars(nx, ny, nvars)
+  INTEGER, intent(in)    :: nvars
+  INTEGER, intent(in)    :: nx, ny, ncid, varid(nvars)
+  REAL, intent(inout)    :: allvars(nx, ny, nvars)
   
   INTEGER i, retcode
   
-  !debug PRINT *,'entered read'
+  !debug:
+  PRINT *,'entered read',nx, ny, ncid
+  !got nx, ny from the .nc file, in initialize_in
 
   DO i = 1, nvars
     !debug PRINT *,i,"calling nf90 get var"
@@ -78,6 +79,9 @@ SUBROUTINE read(nx, ny, nvars, ncid, varid, allvars)
     CALL check(retcode)
     PRINT *,i, MAXVAL(allvars(:,:,i)), MINVAL(allvars(:,:,i))
   ENDDO
+
+  !debug:
+  PRINT *,'leaving read',nx, ny, ncid
     
   RETURN
 END
