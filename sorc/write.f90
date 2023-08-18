@@ -1,14 +1,15 @@
 !----------------------------------------------------------------
 ! Write out results -- drift distance and direction
 
-SUBROUTINE write(ncid_out, varid_out, nvar_out, buoys, nbuoy, close)
+SUBROUTINE writeout(ncid_out, varid_out, nvar_out, buoys, nbuoy, close)
   USE drifter_mod
   USE io
 
   IMPLICIT none
-  INTEGER ncid_out, varid_out, nvar_out, nbuoy
+  INTEGER, intent(in) ::  ncid_out, nvar_out, nbuoy
+  INTEGER, intent(in) ::  varid_out(nvar_out)
   TYPE(drifter) :: buoys(nbuoy)
-  LOGICAL :: close
+  LOGICAL, intent(in) :: close
 
   !debug: PRINT *,'calling outvars, buoy1%x = ',buoys(1)%x
   CALL outvars(ncid_out, varid_out, nvar_out, buoys, nbuoy )
@@ -17,4 +18,4 @@ SUBROUTINE write(ncid_out, varid_out, nvar_out, buoys, nbuoy, close)
     CALL close_out(ncid_out)
   ENDIF
 
-END SUBROUTINE write
+END SUBROUTINE writeout

@@ -113,7 +113,7 @@ PROGRAM newdrift
 !----------------------------------------------------------------
 ! WRITE Write out results -- drift distance and direction
   close = .TRUE.
-  CALL write(ncid_out, varid_out, nvar_out, buoys, nbuoy, close)
+  CALL writeout(ncid_out, varid_out, nvar_out, buoys, nbuoy, close)
   !CALL outvars(ncid_out, varid_out, nvar_out, buoys, imax, jmax)
   !CALL close_out(ncid_out)
 
