@@ -99,16 +99,16 @@ SUBROUTINE check(status)
 END subroutine check
 
 
-SUBROUTINE initialize_out(fname, ncid, varid, nvar, nx, ny, dimids)
+SUBROUTINE initialize_out(fname, ncid, varid, nvar, nbuoy, dimids)
   IMPLICIT none
   CHARACTER(*) fname
-  INTEGER ncid, nvar, nx, ny
+  INTEGER ncid, nvar, nbuoy
   INTEGER varid(nvar)
   CHARACTER(90) varnames(nvar)
-  INTEGER dimids(2)
+  INTEGER dimids(1)
 
   INTEGER i, retcode
-  INTEGER x_dimid, y_dimid
+  INTEGER x_dimid
 !names: 
   varnames(1) = "Initial_Latitude"
   varnames(2) = "Initial_Longitude"
@@ -121,12 +121,9 @@ SUBROUTINE initialize_out(fname, ncid, varid, nvar, nx, ny, dimids)
   retcode = nf90_create(fname, NF90_NOCLOBBER, ncid)
   CALL check(retcode)
 ! dimensionalize
-  retcode = nf90_def_dim(ncid, "nx", nx, x_dimid)
+  retcode = nf90_def_dim(ncid, "nbuoy", nbuoy, x_dimid)
   CALL check(retcode)
-  retcode = nf90_def_dim(ncid, "ny", ny, y_dimid)
-  CALL check(retcode)
-  dimids = (/ y_dimid, x_dimid /)
-  !debug PRINT *,'initialize dimids ',dimids, x_dimid, y_dimid
+  dimids = (/ x_dimid /)
 
 ! assign varid to varnames
   DO i = 1, nvar
@@ -141,44 +138,42 @@ SUBROUTINE initialize_out(fname, ncid, varid, nvar, nx, ny, dimids)
   RETURN
 END subroutine initialize_out
 
-SUBROUTINE outvars(ncid, varid, nvar, buoys, imax, jmax)
+SUBROUTINE outvars(ncid, varid, nvar, buoys, nbuoy)
   IMPLICIT none
   INTEGER ncid, nvar
   INTEGER varid(nvar)
-  INTEGER imax, jmax
-  CLASS(drifter) :: buoys(imax, jmax)
+  INTEGER nbuoy
+  TYPE(drifter) :: buoys(nbuoy)
 
   INTEGER retcode
-  REAL, allocatable :: var(:,:,:)
-  INTEGER i,j
+  REAL, allocatable :: var(:,:)
+  INTEGER i,j, k
   REAL distance, bear
 
 !Note that netcdf dimensions are in C order, not fortran
-  ALLOCATE(var(jmax, imax, nvar))
+  ALLOCATE(var(nbuoy, nvar))
   distance = 0.
   bear = 0.
 
-  DO j = 1, jmax
-  DO i = 1, imax
-    var(j,i,1) = buoys(i,j)%ilat
-    var(j,i,2) = buoys(i,j)%ilon
-    var(j,i,3) = buoys(i,j)%clat
-    !debug PRINT *,'i,j,clat ',i,j,var(i,j,3)
-    var(j,i,4) = buoys(i,j)%clon
-    CALL bearing(var(j,i,1), var(j,i,2), var(j,i,3), var(j,i,4), distance, bear)
-    var(j,i,5) = distance
-    var(j,i,6) = bear
-  ENDDO
+  PRINT *,'entered outvars'
+
+  DO k = 1, nbuoy
+    var(k,1) = buoys(k)%ilat
+    var(k,2) = buoys(k)%ilon
+    var(k,3) = buoys(k)%clat
+    var(k,4) = buoys(k)%clon
+    CALL bearing(var(k,1), var(k,2), var(k,3), var(k,4), distance, bear)
+    var(k,5) = distance
+    var(k,6) = bear
   ENDDO
 
   !debug PRINT *,'about to try to put vars'
   DO i = 1, nvar
-    !debug PRINT *,i, varid(i), MAXVAL(var(:,:,i)), MINVAL(var(:,:,i))
-    retcode = nf90_put_var(ncid, varid(i), var(:,:,i) )
-    !debug PRINT *,retcode
+    retcode = nf90_put_var(ncid, varid(i), var(:,i) )
     CALL check(retcode)
   ENDDO
 
+  DEALLOCATE(var)
   RETURN
 END subroutine outvars
 
