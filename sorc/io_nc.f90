@@ -49,7 +49,7 @@ SUBROUTINE initialize_in(nvar, fname, ncid, varid, nx, ny)
   CALL check(retcode)
 
   DO i = 1, nvar
-    PRINT *,i,varnames(i)
+    !debug: PRINT *,i,varnames(i)
     retcode = nf90_inq_varid(ncid, varnames(i), varid(i))
     CALL check(retcode)
   ENDDO
@@ -69,8 +69,7 @@ SUBROUTINE read(nx, ny, nvars, ncid, varid, allvars)
   
   INTEGER i, retcode
   
-  !debug:
-  PRINT *,'entered read',nx, ny, ncid
+  !debug: PRINT *,'entered read',nx, ny, ncid
   !got nx, ny from the .nc file, in initialize_in
 
   DO i = 1, nvars
@@ -80,8 +79,7 @@ SUBROUTINE read(nx, ny, nvars, ncid, varid, allvars)
     PRINT *,i, MAXVAL(allvars(:,:,i)), MINVAL(allvars(:,:,i))
   ENDDO
 
-  !debug:
-  PRINT *,'leaving read',nx, ny, ncid
+  !debug: PRINT *,'leaving read',nx, ny, ncid
     
   RETURN
 END
@@ -155,7 +153,7 @@ SUBROUTINE outvars(ncid, varid, nvar, buoys, nbuoy)
   distance = 0.
   bear = 0.
 
-  PRINT *,'entered outvars'
+  !debug: PRINT *,'entered outvars'
 
   DO k = 1, nbuoy
     var(k,1) = buoys(k)%ilat

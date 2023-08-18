@@ -50,7 +50,7 @@ PROGRAM newdrift
   CALL initialize_in(nvar, fname, ncid, varid, nx, ny)
   ALLOCATE(allvars(nx, ny, nvar))
 
-  PRINT *,'calling initial_read'
+  !debug: PRINT *,'calling initial_read'
   ALLOCATE(ulat(nx, ny), ulon(nx, ny), dx(nx, ny), dy(nx, ny), rot(nx, ny))
   CALL initial_read(fname, drift_name, outname, nx, ny, nvar, ncid, varid, &
                     allvars, ulon, ulat, dx, dy, rot, &
@@ -80,7 +80,7 @@ PROGRAM newdrift
     buoys(k)%clon = j*ratio
   ENDDO
   ENDDO
-  PRINT *,'done in main assigning buoys'
+  !debug: PRINT *,'done in main assigning buoys'
 
 !debug  DO k = 1, nbuoy
 !debug    PRINT *,k,buoys(k)%x, buoys(k)%y,  buoys(k)%ilat, buoys(k)%ilon, buoys(k)%clat, buoys(k)%clon
@@ -94,10 +94,10 @@ PROGRAM newdrift
 ! First time step:
   u = allvars(:,:,9)
   v = allvars(:,:,10)
-  PRINT *,'u ',MAXVAL(u), MINVAL(u)
-  PRINT *,'v ',MAXVAL(v), MINVAL(v)
-  PRINT *,'buoys(1)%x',buoys(1)%x
-  PRINT *,'calling run'
+  !debug: PRINT *,'u ',MAXVAL(u), MINVAL(u)
+  !debug: PRINT *,'v ',MAXVAL(v), MINVAL(v)
+  !debug: PRINT *,'buoys(1)%x',buoys(1)%x
+  !debug: PRINT *,'calling run'
   CALL run(buoys, nbuoy, u, v, dx, dy, nx, ny, dt, dtout)
 
 ! Iterate

@@ -11,13 +11,13 @@ SUBROUTINE run(buoys, nbuoy, u, v, dx, dy, nx, ny, dt, dtout)
 
   INTEGER k
 
-  PRINT *,'entered run, nbuoy = ',nbuoy
-  PRINT *,'nx ny = ',nx, ny
-  PRINT *,'dt = ',dt
-  PRINT *,'u ',MAXVAL(u), MINVAL(u)
-  PRINT *,'v ',MAXVAL(v), MINVAL(v)
-  PRINT *,'dx ',MAXVAL(dx), MINVAL(dx)
-  PRINT *,'dy ',MAXVAL(dy), MINVAL(dy)
+  !debug: PRINT *,'entered run, nbuoy = ',nbuoy
+  !debug: PRINT *,'nx ny = ',nx, ny
+  !debug: PRINT *,'dt = ',dt
+  !debug: PRINT *,'u ',MAXVAL(u), MINVAL(u)
+  !debug: PRINT *,'v ',MAXVAL(v), MINVAL(v)
+  !debug: PRINT *,'dx ',MAXVAL(dx), MINVAL(dx)
+  !debug: PRINT *,'dy ',MAXVAL(dy), MINVAL(dy)
 
   DO k = 1, nbuoy
     !debug IF ( MOD(k,1000) .EQ. 0) THEN
@@ -29,7 +29,7 @@ SUBROUTINE run(buoys, nbuoy, u, v, dx, dy, nx, ny, dt, dtout)
 
     !CALL move(buoys(k), u, v, dx, dy, dt, nx, ny)
   ENDDO
-  PRINT *,'leaving run'
+  !debug: PRINT *,'leaving run'
 
   ! output time level if requested
 

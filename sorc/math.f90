@@ -102,11 +102,10 @@ SUBROUTINE local_metric(ulat, ulon, dx, dy, rot, nx, ny)
   REAL  :: dlondi(nx, ny), dlondj(nx, ny)
   INTEGER i, j
 
-  !debug 
-  PRINT *,'in local metric'
+  !debug: PRINT *,'in local metric'
 
   rot = 0.
-  PRINT *,'about to call local_cartesian '
+  !debug: PRINT *,'about to call local_cartesian '
   CALL local_cartesian(ulat, dx, dy, nx, ny)
   DO j = 1, ny-1
   DO i = 1, nx-1
@@ -131,8 +130,7 @@ SUBROUTINE local_cartesian(ulat, dx, dy, nx, ny)
 
   INTEGER i, j
 
-  !debug 
-  PRINT *,'in local cartesian'
+  !debug: PRINT *,'in local cartesian'
 
 ! From WGS84 via Amy Solomon, ESRL
 ! Meters per degree

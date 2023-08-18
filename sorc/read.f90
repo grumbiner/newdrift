@@ -29,15 +29,15 @@ SUBROUTINE initial_read(fname, drift_name, outname, nx, ny, nvar, ncid, varid, &
 
 ! Forcing / velocities
   !Get first set of data and construct the local metric for drifting
-  PRINT *,' calling read ',nx, ny, nvar, ncid
+  !debug: PRINT *,' calling read ',nx, ny, nvar, ncid
   CALL read(nx, ny, nvar, ncid, varid, allvars)
-  PRINT *,'done with first read'
+  !debug: PRINT *,'done with first read'
 
   ulat = allvars(:,:,4)
   ulon = allvars(:,:,3)
-  PRINT *,'about to call metric', MAXVAL(ulat), MAXVAL(ulon)
+  !debug: PRINT *,'about to call metric', MAXVAL(ulat), MAXVAL(ulon)
   CALL local_metric(ulat, ulon, dx, dy, rot, nx, ny)
-  PRINT *,'computed the local metric'
+  !debug: PRINT *,'computed the local metric'
 
 
 !  !----------- Initialize buoys, this should be a read in 
@@ -49,7 +49,7 @@ SUBROUTINE initial_read(fname, drift_name, outname, nx, ny, nvar, ncid, varid, &
   jmax = INT(ny/ratio)
 !RG: go to 1d list of points
   ALLOCATE(buoys(imax*jmax))
-  PRINT *,'allocated the buoys'
+  !debug: PRINT *,'allocated the buoys'
   k = 0
   DO j = 1, jmax
   DO i = 1, imax
@@ -66,6 +66,6 @@ SUBROUTINE initial_read(fname, drift_name, outname, nx, ny, nvar, ncid, varid, &
 
 ! Initialize Output -- need definite sizes
   CALL initialize_out(outname, ncid_out, varid_out, nvar_out, nbuoy, outdimids)
-  PRINT *,'initialized the output'
+  !debug: PRINT *,'initialized the output'
 
 END SUBROUTINE initial_read
