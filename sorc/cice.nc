@@ -1,0 +1,1 @@
+/export/emc-lw-rgrumbi/rmg3/data/cice.nc

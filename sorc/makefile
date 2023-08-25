@@ -1,6 +1,6 @@
 OBJ = math.o drifter.o io_nc.o main.o read.o run.o write.o 
 
-include mk.hera
+include mk.this_sys
 
 all : $(OBJ)
 	echo $(NETCDF_LIB)
