@@ -27,6 +27,7 @@ PROGRAM newdrift
   REAL, allocatable  :: ulat(:,:), ulon(:,:)
   REAL, allocatable  :: dx(:,:), dy(:,:), rot(:,:)
   REAL, allocatable  :: u(:,:), v(:,:)
+  REAL, allocatable  :: aice(:,:)
 
 ! Utilities for main
   INTEGER i, j, k, imax, jmax, ratio
@@ -63,24 +64,38 @@ PROGRAM newdrift
   ratio = 5
   imax = INT(nx/ratio)
   jmax = INT(ny/ratio)
+  ALLOCATE(aice(nx, ny))
+  aice = allvars(:,:,8)
 !  CALL initialize_drifter(drift_name, ncid_drift, varid_driftin, nvar_out, buoys)
 !  CALL close_out(ncid_drift)
 !RG: go to 1d list of points
   ALLOCATE(buoys(nbuoy))
+  !Zero the buoys:
+  DO k = 1, nbuoy
+      buoys(k)%x = 0.0
+      buoys(k)%y = 0.0
+      buoys(k)%ilat = 0.0
+      buoys(k)%ilon = 0.0
+      buoys(k)%clat = 0.0
+      buoys(k)%clon = 0.0
+  ENDDO
 ! Dummy for testing
   k = 0
   DO j = 1, jmax
   DO i = 1, imax
-    k = k + 1
-    buoys(k)%x = i*ratio
-    buoys(k)%y = j*ratio
-    buoys(k)%ilat = ulat(i*ratio, j*ratio)
-    buoys(k)%ilon = ulon(i*ratio, j*ratio)
-    buoys(k)%clat = i*ratio
-    buoys(k)%clon = j*ratio
+    IF (aice(i*ratio, j*ratio) > 0. .AND. aice(i*ratio,j*ratio) <= 1.0) THEN
+      k = k + 1
+      buoys(k)%x = i*ratio
+      buoys(k)%y = j*ratio
+      buoys(k)%ilat = ulat(i*ratio, j*ratio)
+      buoys(k)%ilon = ulon(i*ratio, j*ratio)
+      buoys(k)%clat = i*ratio
+      buoys(k)%clon = j*ratio
+    ENDIF
   ENDDO
   ENDDO
-  !debug: PRINT *,'done in main assigning buoys'
+  !debug: 
+  PRINT *,'done in main assigning buoys, nactual = ', k
 
 !debug  DO k = 1, nbuoy
 !debug    PRINT *,k,buoys(k)%x, buoys(k)%y,  buoys(k)%ilat, buoys(k)%ilon, buoys(k)%clat, buoys(k)%clon
