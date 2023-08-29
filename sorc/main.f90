@@ -82,10 +82,10 @@ PROGRAM newdrift
   ENDDO
   !debug: PRINT *,'done in main assigning buoys'
 
-!debug  DO k = 1, nbuoy
-!debug    PRINT *,k,buoys(k)%x, buoys(k)%y,  buoys(k)%ilat, buoys(k)%ilon, buoys(k)%clat, buoys(k)%clon
-!debug  ENDDO
-!debug  STOP 'debug halt'
+!debug DO k = 1, nbuoy
+  !debug PRINT *,k,buoys(k)%x, buoys(k)%y,  buoys(k)%ilat, buoys(k)%ilon, buoys(k)%clat, buoys(k)%clon
+!debug ENDDO
+!debug STOP 'debug halt'
 
 !----------------------------------------------------------------
 ! RUN
