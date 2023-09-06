@@ -44,19 +44,25 @@ SUBROUTINE initialize_in(nvar, fname, ncid, varid, nx, ny)
   varnames(22) = "strength"
   varnames(23) = "divu"
   varnames(24) = "Tair"
+!Debug:
+  PRINT *,"named all 24 variables"
 
   retcode = nf90_open(fname, NF90_NOWRITE, ncid)
   CALL check(retcode)
+!Debug:
+  PRINT *,"opened fname",fname
 
   DO i = 1, nvar
     !debug: PRINT *,i,varnames(i)
     retcode = nf90_inq_varid(ncid, varnames(i), varid(i))
     CALL check(retcode)
   ENDDO
-  nx = 4500
+
+nx = 4500
   ny = 3297
 
   !debug: PRINT *,'leaving initialize_in'
+
 
 RETURN
 END subroutine initialize_in
@@ -74,6 +80,7 @@ SUBROUTINE read(nx, ny, nvars, ncid, varid, allvars)
 
   DO i = 1, nvars
     !debug PRINT *,i,"calling nf90 get var"
+
     retcode = nf90_get_var(ncid, varid(i), allvars(:,:,i) )
     CALL check(retcode)
     PRINT *,i, MAXVAL(allvars(:,:,i)), MINVAL(allvars(:,:,i))
@@ -138,6 +145,7 @@ END subroutine initialize_out
 
 SUBROUTINE outvars(ncid, varid, nvar, buoys, nbuoy)
   IMPLICIT none
+
   INTEGER ncid, nvar
   INTEGER varid(nvar)
   INTEGER nbuoy
@@ -167,11 +175,15 @@ SUBROUTINE outvars(ncid, varid, nvar, buoys, nbuoy)
 
   !debug PRINT *,'about to try to put vars'
   DO i = 1, nvar
+
     retcode = nf90_put_var(ncid, varid(i), var(:,i) )
     CALL check(retcode)
   ENDDO
 
   DEALLOCATE(var)
+
+  !debug PRINT *,'leaving outvar'
+
   RETURN
 END subroutine outvars
 
