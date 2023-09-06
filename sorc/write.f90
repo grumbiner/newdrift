@@ -6,10 +6,12 @@ SUBROUTINE writeout(ncid_out, varid_out, nvar_out, buoys, nbuoy, close)
   USE io
 
   IMPLICIT none
-  INTEGER ncid_out, nvar_out, nbuoy
-  INTEGER varid_out(nvar_out)
+
+  INTEGER, intent(in) ::  ncid_out, nvar_out, nbuoy
+  INTEGER, intent(in) ::  varid_out(nvar_out)
+
   TYPE(drifter) :: buoys(nbuoy)
-  LOGICAL :: close
+  LOGICAL, intent(in) :: close
 
   !debug: PRINT *,'calling outvars, buoy1%x = ',buoys(1)%x
   CALL outvars(ncid_out, varid_out, nvar_out, buoys, nbuoy )

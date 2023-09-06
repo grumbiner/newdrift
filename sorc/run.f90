@@ -21,8 +21,8 @@ SUBROUTINE run(buoys, nbuoy, u, v, dx, dy, nx, ny, dt, dtout)
 
   DO k = 1, nbuoy
     !debug IF ( MOD(k,1000) .EQ. 0) THEN
-    !debug  PRINT *,'k = ',k, buoys(k)%x, buoys(k)%ilat, buoys(k)%clon
-    !debugENDIF
+      !debug PRINT *,'k = ',k, buoys(k)%x, buoys(k)%ilat, buoys(k)%clon
+    !debug ENDIF
 
     !c-like 
     CALL buoys(k)%move(u, v, dx, dy, dt, nx, ny)
