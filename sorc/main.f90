@@ -111,7 +111,7 @@ PROGRAM newdrift
   DO n = 2, nstep
     !debug 
     PRINT *,'on step ',n
-    !RG temporary debug CALL read(nx, ny, nvar, ncid, varid, allvars)
+    !RG temporary debug: CALL read(nx, ny, nvar, ncid, varid, allvars)
     u = allvars(:,:,9)
     v = allvars(:,:,10)
     PRINT *,'set u,v '
