@@ -1,6 +1,6 @@
-OBJ = math.o drifter.o io_nc.o main.o 
+OBJ = math.o drifter.o io_nc.o main.o read.o run.o write.o 
 
-include mk.wcoss2
+include mk.this_sys
 
 all : $(OBJ)
 	$(FC) $(OBJ)  $(LIBDIRS)  -l netcdff -o all
