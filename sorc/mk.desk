@@ -2,7 +2,7 @@
 include mk.all
 
 NETCDF_INC=-I$(HOME)/usrlocal/include
-NETCDF_LIB=-L$(HOME)/usrlocal/lib
+NETCDF_LIBRARIES=-L$(HOME)/usrlocal/lib
 
 FOPTS = -c -Wall -std=f2008 $(NETCDF_INC)
 FC = gfortran

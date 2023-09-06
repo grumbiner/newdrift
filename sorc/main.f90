@@ -42,39 +42,36 @@ PROGRAM newdrift
   CHARACTER(90) fname, drift_name, outname
   LOGICAL close
 
-  fname      = "cice.nc"
-  drift_name = "drift_in.nc"
-  outname    = "output.nc"
+  !fname      = "cice.nc"
+  !drift_name = "drift_in.nc"
+  !outname    = "output.nc"
   close = .FALSE.
 
+! Forcing / velocities
+  READ (*,*) fname
   CALL initialize_in(nvar, fname, ncid, varid, nx, ny)
+
+! Initialize Output -- need definite sizes
+  READ (*,*) outname
   ALLOCATE(allvars(nx, ny, nvar))
+  ALLOCATE(ulat(nx, ny), ulon(nx, ny), dx(nx, ny), dy(nx, ny), rot(nx, ny))
 
   !debug: PRINT *,'calling initial_read'
-  ALLOCATE(ulat(nx, ny), ulon(nx, ny), dx(nx, ny), dy(nx, ny), rot(nx, ny))
+  !RG: really initialize_io
+  !Get first set of data and construct the local metric for drifting
   CALL initial_read(fname, drift_name, outname, nx, ny, nvar, ncid, varid, &
                     allvars, ulon, ulat, dx, dy, rot, &
                     dimids, ncid_out, varid_out, nvar_out, nbuoy)
   !debug: STOP "done with initial_read"
+  !debug: 
+  PRINT *, "done with initial_read"
 
-! Forcing / velocities
-  READ (*,*) fname
-  !fname = "cice.nc"
-  CALL initialize_in(fname, ncid, varid)
-  !debug PRINT *,'varid = ',varid
-
-  !Get first set of data and construct the local metric for drifting
-  CALL read(nx, ny, nvar, ncid, varid, allvars)
-  ulon = allvars(:,:,3)
-  ulat = allvars(:,:,4)
   u    = allvars(:,:,9)
   v    = allvars(:,:,10)
   PRINT *,"ulat, ulon max = ",MAXVAL(ulat), MAXVAL(ulon)
-  CALL local_metric(ulat, ulon, dx, dy, rot, nx, ny)
+  !debug: CALL local_metric(ulat, ulon, dx, dy, rot, nx, ny)
   PRINT *,"dx, dy max = ",MAXVAL(dx), MAXVAL(dy)
 
-! Initialize Output -- need definite sizes
-  READ (*,*) outname
   ratio = 5
   imax = INT(nx/ratio)
   jmax = INT(ny/ratio)
@@ -82,19 +79,11 @@ PROGRAM newdrift
   ALLOCATE(aice(nx, ny))
   aice = allvars(:,:,8)
 
-  !RG: Need to work on/with multiple time step options
-  CALL initialize_out(outname, ncid_out, varid_out, nvar_out, imax, jmax, dimids)
-
 ! Read in run parameters:
   READ (*,*) dt
   READ (*,*) nstep
   PRINT *,'nstep = ',nstep
 
-  !----------- Initialize buoys, this should be a read in 
-  drift_name = "drift_in.nc"
-
-!  CALL initialize_drifter(drift_name, ncid_drift, varid_driftin, nvar_out, buoys)
-!  CALL close_out(ncid_drift)
 !RG: go to 1d list of points
   ALLOCATE(buoys(nbuoy))
   !Zero the buoys:

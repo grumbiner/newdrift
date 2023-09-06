@@ -3,10 +3,8 @@ OBJ = math.o drifter.o io_nc.o main.o read.o run.o write.o
 include mk.this
 
 all : $(OBJ)
-
-	echo $(NETCDF_LIB)
-	$(FC) $(OBJ)  $(NETCDF_LIB)  -l netcdff -o all
-
+	echo zzz netcdf_lib = $(NETCDF_LIBRARIES)
+	$(FC) $(OBJ)  -L $(NETCDF_LIBRARIES)  -l netcdff -o all
 
 clean :
 	        rm *.o *.mod output.nc
