@@ -95,16 +95,17 @@ END subroutine unbearing
 SUBROUTINE local_metric(ulat, ulon, dx, dy, rot, nx, ny)
   IMPLICIT none
   INTEGER, intent(in) :: nx, ny
-  REAL, intent(in)  :: ulat(nx, ny), ulon(nx, ny)
-  REAL, intent(out) :: dx(nx, ny), dy(nx, ny), rot(nx, ny)
+  REAL, intent(in)   :: ulat(nx, ny), ulon(nx, ny)
+  REAL, intent(out)  :: dx(nx, ny), dy(nx, ny), rot(nx, ny)
 
   REAL  :: dlatdi(nx, ny), dlatdj(nx, ny)
   REAL  :: dlondi(nx, ny), dlondj(nx, ny)
   INTEGER i, j
 
-  !debug PRINT *,'in local metric'
+  !debug: PRINT *,'in local metric'
 
   rot = 0.
+  !debug: PRINT *,'about to call local_cartesian '
   CALL local_cartesian(ulat, dx, dy, nx, ny)
   DO j = 1, ny-1
   DO i = 1, nx-1
@@ -129,7 +130,7 @@ SUBROUTINE local_cartesian(ulat, dx, dy, nx, ny)
 
   INTEGER i, j
 
-  !debug PRINT *,'in local cartesian'
+  !debug: PRINT *,'in local cartesian'
 
 ! From WGS84 via Amy Solomon, ESRL
 ! Meters per degree

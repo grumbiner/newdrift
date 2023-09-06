@@ -28,7 +28,7 @@ CONTAINS
     REAL deltax, deltay
     INTEGER ti, tj
 
-  !debug PRINT *,buoy%x, buoy%y, nx, ny
+  !debug PRINT *,'in move',buoy%x, buoy%y, nx, ny
 
     ti = NINT(buoy%x)
     tj = NINT(buoy%y)

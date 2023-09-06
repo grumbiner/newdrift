@@ -1,9 +1,12 @@
 
 include mk.all
 
-FOPTS = -c -Wall -std=f2008 $(NETCDF_INC)
-FC = ifort
+NETCDF_INC=-I$(HOME)/usrlocal/include
+NETCDF_LIB=-L$(HOME)/usrlocal/lib
 
-all : $(OBJ)
-	$(FC) $(OBJ)  $(NETCDF_LIB) -l netcdff -o all
+FOPTS = -c -Wall -std=f2008 $(NETCDF_INC)
+FC = gfortran
+
+#all : $(OBJ)
+#	$(FC) $(OBJ)  $(NETCDF_LIB) -l netcdff -o all
 
