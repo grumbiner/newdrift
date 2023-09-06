@@ -152,7 +152,9 @@ PROGRAM newdrift
 ! -- one file with many time steps, many files 1 time step each
   nstep = 1
   DO n = 2, nstep
+
     CALL read(nx, ny, nvar, ncid, varid, allvars)
+
     u = allvars(:,:,9)
     v = allvars(:,:,10)
     CALL run(buoys, nbuoy, u, v, dx, dy, nx, ny, dt, dtout)

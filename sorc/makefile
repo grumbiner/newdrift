@@ -1,6 +1,6 @@
 OBJ = math.o drifter.o io_nc.o main.o read.o run.o write.o 
 
-include mk.this_sys
+include mk.this
 
 all : $(OBJ)
 
