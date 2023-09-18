@@ -1,0 +1,3 @@
+edit makeall.sh to be for the system you're on
+ln -s mk.YOUR_SYSTEM mk.this
+./makeall.sh
