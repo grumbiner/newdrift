@@ -27,3 +27,6 @@ echo zzz NETCDF
 echo `env | grep  NETCDF`
 
 make
+if [ -f output.nc ] ; then
+  rm output.nc
+fi

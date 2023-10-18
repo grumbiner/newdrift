@@ -44,13 +44,11 @@ SUBROUTINE initialize_in(nvar, fname, ncid, varid, nx, ny)
   varnames(22) = "strength"
   varnames(23) = "divu"
   varnames(24) = "Tair"
-!Debug:
-  PRINT *,"named all 24 variables"
+!debug: PRINT *,"named all 24 variables"
 
   retcode = nf90_open(fname, NF90_NOWRITE, ncid)
   CALL check(retcode)
-!Debug:
-  PRINT *,"opened fname",fname
+!debug: PRINT *,"opened fname",fname
 
   DO i = 1, nvar
     !debug: PRINT *,i,varnames(i)
@@ -58,7 +56,7 @@ SUBROUTINE initialize_in(nvar, fname, ncid, varid, nx, ny)
     CALL check(retcode)
   ENDDO
 
-nx = 4500
+  nx = 4500
   ny = 3297
 
   !debug: PRINT *,'leaving initialize_in'
