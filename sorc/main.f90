@@ -134,7 +134,8 @@ PROGRAM newdrift
   !debug: PRINT *,'u ',MAXVAL(u), MINVAL(u)
   !debug: PRINT *,'v ',MAXVAL(v), MINVAL(v)
   !debug: PRINT *,'buoys(1)%x',buoys(1)%x
-  !debug: PRINT *,'calling run'
+  !debug: 
+  PRINT *,'calling run'
   CALL run(buoys, nbuoy, u, v, dx, dy, nx, ny, dt, dtout)
 
 ! Iterate
