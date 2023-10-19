@@ -107,14 +107,15 @@ SUBROUTINE local_metric(ulat, ulon, dx, dy, rot, nx, ny)
   rot = 0.
   !debug: PRINT *,'about to call local_cartesian '
   CALL local_cartesian(ulat, dx, dy, nx, ny)
-  DO j = 1, ny-1
-  DO i = 1, nx-1
-    dlatdi(i,j) = ulat(i+1,j) - ulat(i,j)
-    dlondi(i,j) = ulon(i+1,j) - ulon(i,j)
-    dlatdj(i,j) = ulat(i,j+1) - ulat(i,j)
-    dlondj(i,j) = ulon(i,j+1) - ulon(i,j)
-  ENDDO
-  ENDDO
+
+  !DO j = 1, ny-1
+  !DO i = 1, nx-1
+  !  dlatdi(i,j) = ulat(i+1,j) - ulat(i,j)
+  !  dlondi(i,j) = ulon(i+1,j) - ulon(i,j)
+  !  dlatdj(i,j) = ulat(i,j+1) - ulat(i,j)
+  !  dlondj(i,j) = ulon(i,j+1) - ulon(i,j)
+  !ENDDO
+  !ENDDO
   !rot = atan2(?,?)
 
   RETURN
@@ -148,6 +149,31 @@ SUBROUTINE local_cartesian(ulat, dx, dy, nx, ny)
   RETURN
 END subroutine local_cartesian
 
+! Convert from buoy's lat-lon location to its ij coordinate (x,y in buoy member)
+SUBROUTINE ll_to_xy(lat, lon, ulat, ulon, x, y, nx, ny)
+
+  IMPLICIT none
+  INTEGER, intent(in) :: nx, ny
+  REAL, intent(in)    :: lat, lon, ulat(nx, ny), ulon(nx, ny)
+  REAL, intent(inout)   :: x, y
+
+  INTEGER :: AR2(2), AR1(2)
+  REAL dlon(nx, ny), dlat(nx, ny)
+
+  !debug: PRINT *,'llij ',lat, lon
+  !debug: PRINT *,'nx, ny',  nx, ny
+  !debug: PRINT *,'x y ',x, y
+  !debug: PRINT *,'max ulat ulon', MAXVAL(ulat), MAXVAL(ulon)
+  dlon = ABS(ulon - lon)
+  dlat = ABS(ulat - lat)
+  AR1 = MINLOC(dlon)
+  AR2 = MINLOC(dlat)
+
+  !debug: PRINT *,lat, lon, AR1, AR2
+  x = FLOAT(AR1(1))
+  y = FLOAT(AR1(2))
+  RETURN
+END SUBROUTINE ll_to_xy 
+
 
 !Bilinear interpolation to buoy.x,y
-

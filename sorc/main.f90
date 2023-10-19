@@ -31,10 +31,11 @@ PROGRAM newdrift
 ! Utilities for main
   INTEGER i, j, k, imax, jmax, ratio
   INTEGER n, nstep
+  REAL x, y
 
 !For drifter 
   CLASS(drifter), allocatable :: buoys(:)
-  INTEGER nbuoy
+  INTEGER nbuoy, nactual
 
 ! Read from .nc file (or argument to main)
   INTEGER nx, ny
@@ -63,14 +64,13 @@ PROGRAM newdrift
 
   u    = allvars(:,:,9)
   v    = allvars(:,:,10)
-  !debug: PRINT *,"ulat, ulon max = ",MAXVAL(ulat), MAXVAL(ulon)
   !debug: PRINT *,"local metric dx, dy max = ",MAXVAL(dx), MAXVAL(dy)
-  !debug: 
-  PRINT *,"local metric dx, dy min = ",MINVAL(dx), MINVAL(dy)
+  !debug: PRINT *,"local metric dx, dy min = ",MINVAL(dx), MINVAL(dy)
 
-  ratio = 5
-  imax = INT(nx/ratio)
-  jmax = INT(ny/ratio)
+  !debug: 
+  PRINT *,"ulat, ulon max = ",MAXVAL(ulat), MAXVAL(ulon)
+  !debug: 
+  PRINT *,"ulat, ulon min = ",MINVAL(ulat), MINVAL(ulon)
 
   ALLOCATE(aice(nx, ny))
   aice = allvars(:,:,8)
@@ -78,9 +78,9 @@ PROGRAM newdrift
 ! Read in run parameters:
   READ (*,*) dt
   READ (*,*) nstep
-  PRINT *,'dt, nstep = ',nstep
+  PRINT *,'dt, nstep = ',dt, nstep
 
-!RG: go to 1d list of points
+  !RG: Should com from initial read, reading in buoy file
   ALLOCATE(buoys(nbuoy))
   !Zero the buoys:
   DO k = 1, nbuoy
@@ -93,24 +93,37 @@ PROGRAM newdrift
   ENDDO
 ! Dummy for testing
   k = 0
+  ratio = 5
+  imax = INT(nx/ratio)
+  jmax = INT(ny/ratio)
+  x = 0.0
+  y = 0.0
   DO j = 1, jmax
   DO i = 1, imax
     IF (aice(i*ratio, j*ratio) > 0. .AND. aice(i*ratio,j*ratio) <= 1.0  .AND. &
         dx(i*ratio, j*ratio) .NE. 0. .AND. dy(i*ratio, j*ratio) .NE. 0. .AND. &
         ABS(u(i*ratio, j*ratio)) < 100. .AND. ABS(v(i*ratio, j*ratio)) < 100. ) THEN
+      !debug: PRINT *,'aice, dx, dy, u, v',aice(i*ratio, j*ratio), dx(i*ratio, j*ratio), &
+      !debug:   dy(i*ratio, j*ratio), u(i*ratio, j*ratio), v(i*ratio, j*ratio)
+
       k = k + 1
-      buoys(k)%x = i*ratio
-      buoys(k)%y = j*ratio
       buoys(k)%ilat = ulat(i*ratio, j*ratio)
       buoys(k)%ilon = ulon(i*ratio, j*ratio)
-      buoys(k)%clat = i*ratio
-      buoys(k)%clon = j*ratio
+      buoys(k)%clat = ulat(i*ratio, j*ratio)
+      buoys(k)%clon = ulon(i*ratio, j*ratio)
+
+      !RG: Must compute physical value here, location vs. grid mesh function
+      !CALL ll_to_xy(buoys(k)%ilat, buoys(k)%ilon, ulat, ulon, x, y, nx, ny)
+      buoys(k)%x = i*ratio
+      buoys(k)%y = j*ratio
+
     ENDIF
   ENDDO
   !debug: PRINT *,1,j,buoys(1,j)%ilat ,  buoys(1,j)%ilon 
   ENDDO
   !debug: 
   PRINT *,'done in main assigning buoys, nactual = ', k
+  nactual = k
 
 !----------------------------------------------------------------
 ! RUN
@@ -123,7 +136,7 @@ PROGRAM newdrift
   !DEALLOCATE(allvars)
   !debug: 
   PRINT *,'calling run'
-  CALL run(buoys, nbuoy, u, v, dx, dy, nx, ny, dt, dtout)
+  CALL run(buoys, nactual, u, v, dx, dy, nx, ny, dt, dtout)
 
 ! Iterate
 ! -- one file with many time steps, many files 1 time step each
@@ -136,12 +149,12 @@ PROGRAM newdrift
     !CALL read(nx, ny, nvar, ncid, varid, allvars)
     !u = allvars(:,:,9)
     !v = allvars(:,:,10)
-    CALL run(buoys, nbuoy, u, v, dx, dy, nx, ny, dt, dtout)
+    CALL run(buoys, nactual, u, v, dx, dy, nx, ny, dt, dtout)
   ENDDO
 
 !----------------------------------------------------------------
 ! WRITE Write out results -- drift distance and direction
   close = .TRUE.
-  CALL writeout(ncid_out, varid_out, nvar_out, buoys, nbuoy, close)
+  CALL writeout(ncid_out, varid_out, nvar_out, buoys, nactual, close)
 
 END program newdrift

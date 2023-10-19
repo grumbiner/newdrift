@@ -39,7 +39,6 @@ CONTAINS
     !verbose: PRINT *,'move deltax deltay, dx dy', deltax, deltay, dx(ti,tj), dy(ti,tj)
     !debug:
     IF (dx(ti, tj) .EQ. 0. .OR. dy(ti, tj) .EQ. 0) THEN
-      !PRINT *,'move deltax deltay, dx dy, u v', deltax, deltay, dx(ti,tj), dy(ti,tj), u(ti,tj), v(ti,tj)
       WRITE (*,9001) ti, tj, deltax, deltay, dx(ti,tj), dy(ti,tj), u(ti,tj), v(ti,tj), buoy%x, buoy%y
     ENDIF
  9001 FORMAT(2I4, 8F10.4)
@@ -78,11 +77,11 @@ SUBROUTINE run(buoys, nbuoy, u, v, dx, dy, nx, ny, dt, dtout)
     !debug: IF ( MOD(k,1000) .EQ. 0) THEN
       !debug: PRINT *,'k = ',k, buoys(k)%x, buoys(k)%ilat, buoys(k)%clon
     !debug: ENDIF
+    !debug: PRINT *,'buoy k = ',k
 
-    !c-like 
+    !c-like (object-like) 
     CALL buoys(k)%move(u, v, dx, dy, dt, nx, ny)
 
-    !CALL move(buoys(k), u, v, dx, dy, dt, nx, ny)
   ENDDO
   !debug: PRINT *,'leaving run'
 
