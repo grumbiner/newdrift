@@ -129,7 +129,7 @@ SUBROUTINE read(nx, ny, nvars, ncid, varid, allvars)
   !got nx, ny from the .nc file, in initialize_in
 
   DO i = 1, nvars
-    !debug PRINT *,i,"calling nf90 get var"
+    !debug: PRINT *,i,"calling nf90 get var"
 
     retcode = nf90_get_var(ncid, varid(i), allvars(:,:,i) )
     CALL check(retcode)
@@ -229,7 +229,8 @@ SUBROUTINE outvars(ncid, varid, nvar, buoys, nbuoy)
     var(k,6) = bear
   ENDDO
 
-  !debug PRINT *,'about to try to put vars'
+  !debug: PRINT *,'about to try to put vars'
+  !RG: separate initial write -- just ilat, ilon, from later writes, clat, clon, distance, bear
   DO i = 1, nvar
 
     retcode = nf90_put_var(ncid, varid(i), var(:,i) )
@@ -238,7 +239,7 @@ SUBROUTINE outvars(ncid, varid, nvar, buoys, nbuoy)
 
   DEALLOCATE(var)
 
-  !debug PRINT *,'leaving outvar'
+  !debug: PRINT *,'leaving outvar'
 
   RETURN
 END subroutine outvars

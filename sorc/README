@@ -1,3 +1,7 @@
-edit makeall.sh to be for the system you're on
-ln -s mk.YOUR_SYSTEM mk.this
-./makeall.sh
+Input:
+cice.nc     -- file with ice velocities 
+output.nc   -- output file name
+36.         -- time step, seconds
+300         -- number of time steps
+30          -- how often to write out information
+* to come: drift file input name

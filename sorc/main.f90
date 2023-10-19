@@ -19,6 +19,7 @@ PROGRAM newdrift
   
 ! Read from input (or argument to main)
   REAL dt, dtout
+  INTEGER outfreq
 
   REAL, allocatable :: allvars(:,:,:)
 
@@ -45,13 +46,19 @@ PROGRAM newdrift
 
 
 ! -- Begin main for offline ----
+  READ (*,*) fname
+  READ (*,*) outname
+! Read in run parameters:
+  READ (*,*) dt
+  READ (*,*) nstep
+  READ (*,*) outfreq
+  PRINT *,'dt, nstep, outfreq = ',dt, nstep, outfreq
+
 
 ! Forcing / velocities
-  READ (*,*) fname
   CALL initialize_in(nvar, fname, ncid, varid, nx, ny)
 
 ! Initialize Output -- need definite sizes
-  READ (*,*) outname
   ALLOCATE(allvars(nx, ny, nvar))
   ALLOCATE(ulat(nx, ny), ulon(nx, ny), dx(nx, ny), dy(nx, ny), rot(nx, ny))
 
@@ -75,11 +82,7 @@ PROGRAM newdrift
   ALLOCATE(aice(nx, ny))
   aice = allvars(:,:,8)
 
-! Read in run parameters:
-  READ (*,*) dt
-  READ (*,*) nstep
-  PRINT *,'dt, nstep = ',dt, nstep
-
+  !---------------------------------------------------------
   !RG: Should com from initial read, reading in buoy file
   ALLOCATE(buoys(nbuoy))
   !Zero the buoys:
