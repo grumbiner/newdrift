@@ -26,6 +26,8 @@ ln -sf mk.desk mk.this
 echo zzz NETCDF 
 echo `env | grep  NETCDF`
 
+#cp -p shared/*.f90 .
+
 make
 if [ -f output.nc ] ; then
   rm output.nc
