@@ -1,4 +1,5 @@
 cice.nc
 output.nc
 3600.
-10
+300
+30
