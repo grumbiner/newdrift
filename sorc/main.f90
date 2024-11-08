@@ -54,7 +54,6 @@ PROGRAM newdrift
   fname = trim(tmp2)
   READ (10,*) tmp
   outname = trim(tmp)
-!debug: PRINT *,fname, outname
 
 ! Read in run parameters:
   READ (10,*) dt
@@ -64,7 +63,6 @@ PROGRAM newdrift
 
 ! Forcing / velocities
   CALL initialize_in(nvar, fname, ncid, varid, nx, ny)
-!debug:  STOP
 
 ! Initialize Output -- need definite sizes
   ALLOCATE(allvars(nx, ny, nvar))
@@ -76,15 +74,6 @@ PROGRAM newdrift
   CALL initial_read(fname, drift_name, outname, nx, ny, nvar, ncid, varid, &
                     allvars, ulon, ulat, dx, dy, rot, &
                     dimids, ncid_out, varid_out, nvar_out, nbuoys)
-  !debug: PRINT *, "done with initial_read"
-  !debug: 
-  PRINT *,"local metric dx, dy max = ",MAXVAL(dx), MAXVAL(dy)
-  !debug: 
-  PRINT *,"local metric dx, dy min = ",MINVAL(dx), MINVAL(dy)
-  !debug: 
-  PRINT *,"ulat, ulon max = ",MAXVAL(ulat), MAXVAL(ulon)
-  !debug: 
-  PRINT *,"ulat, ulon min = ",MINVAL(ulat), MINVAL(ulon)
 
 
 !cice_inst:
@@ -124,8 +113,6 @@ PROGRAM newdrift
   u = allvars(:,:,6)
   v = allvars(:,:,7)
   !DEALLOCATE(allvars)
-  !debug: 
-  PRINT *,'calling run'
   CALL run(buoys, nactual, u, v, dx, dy, nx, ny, dt, dtout)
 
 ! Iterate
@@ -133,12 +120,8 @@ PROGRAM newdrift
   !debug: nstep = 1
   !initial read has taken care of this: CALL read(nx, ny, nvar, ncid, varid, allvars)
   DO n = 2, nstep
-    !debug:
-    PRINT *,'n = ', n
 
     !CALL read(nx, ny, nvar, ncid, varid, allvars)
-    !u = allvars(:,:,9)
-    !v = allvars(:,:,10)
     CALL run(buoys, nactual, u, v, dx, dy, nx, ny, dt, dtout)
   ENDDO
 

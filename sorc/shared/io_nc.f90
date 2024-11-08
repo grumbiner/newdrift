@@ -22,7 +22,6 @@ SUBROUTINE initialize_in(nvar, fname, ncid, varid, nx, ny)
   INTEGER retcode
 
   PRINT *,'entered initialize_in'
-!debug:  PRINT *,'nvar, fname, ncid, varid, nx, ny ',nvar, fname, ncid, varid, nx, ny
 !! This is the cice_inst variable set -- much more extensive
 !  varnames(1) = "TLON"
 !  varnames(2) = "TLAT"
@@ -48,8 +47,6 @@ SUBROUTINE initialize_in(nvar, fname, ncid, varid, nx, ny)
 !  varnames(22) = "strength"
 !  varnames(23) = "divu"
 !  varnames(24) = "Tair"
-!debug: 
-!  PRINT *,"named all 24 cice_inst variables"
 !RG: make file type an input parameter 2ds_ice:
   varnames(1) = "Longitude"
   varnames(2) = "Latitude"
@@ -58,26 +55,18 @@ SUBROUTINE initialize_in(nvar, fname, ncid, varid, nx, ny)
   varnames(5) = "ice_thickness"
   varnames(6) = "ice_uvelocity"
   varnames(7) = "ice_vvelocity"
-!debug: PRINT *,"named all 7 2ds_ice variables"
   
 
-!debug:  PRINT *,"fname = ",fname
   retcode = nf90_open(fname, NF90_NOWRITE, ncid)
   CALL check(retcode)
-!debug: PRINT *,"opened fname",fname
 
   DO i = 1, nvar
-    !debug: PRINT *,i,varnames(i)
     retcode = nf90_inq_varid(ncid, varnames(i), varid(i))
     CALL check(retcode)
   ENDDO
 
   nx = 4500
   ny = 3298
-
-  !debug: 
-  PRINT *,'leaving initialize_in'
-
 
 RETURN
 END subroutine initialize_in
@@ -109,9 +98,7 @@ SUBROUTINE initial_read(fname, drift_name, outname, nx, ny, nvar, ncid, varid, &
 
 ! Forcing / velocities
   !Get first set of data and construct the local metric for drifting
-  !debug: PRINT *,' calling read ',nx, ny, nvar, ncid
   CALL read(nx, ny, nvar, ncid, varid, allvars)
-  !debug: PRINT *,'done with first read'
 
 !cice_inst:
 !  ulat = allvars(:,:,4)
@@ -119,9 +106,7 @@ SUBROUTINE initial_read(fname, drift_name, outname, nx, ny, nvar, ncid, varid, &
 !2ds_ice:
   ulat = allvars(:,:,2)
   ulon = allvars(:,:,1)
-  !debug: PRINT *,'about to call metric', MAXVAL(ulat), MAXVAL(ulon)
   CALL local_metric(ulat, ulon, dx, dy, rot, nx, ny)
-  !debug: PRINT *,'computed the local metric'
 
 !  !----------- Initialize buoys, this should be a read in 
 !  CALL initialize_drifter(drift_name, ncid_drift, varid_driftin, nvar_out, buoys)
@@ -129,11 +114,7 @@ SUBROUTINE initial_read(fname, drift_name, outname, nx, ny, nvar, ncid, varid, &
 !  CALL close_out(ncid_drift)
 
 ! Initialize Output -- need definite sizes
-  !debug: 
-  PRINT *,'about to initialize_out'
   CALL initialize_out(outname, ncid_out, varid_out, nvar_out, nbuoy, outdimids)
-  !debug: 
-  PRINT *,'initialized the output'
 
 END SUBROUTINE initial_read
 
@@ -146,19 +127,14 @@ SUBROUTINE read(nx, ny, nvars, ncid, varid, allvars)
   
   INTEGER i, retcode
   
-  !debug: PRINT *,'entered read',nx, ny, ncid
   !got nx, ny from the .nc file, in initialize_in
 
   DO i = 1, nvars
-    !debug: PRINT *,i,"calling nf90 get var"
-
     retcode = nf90_get_var(ncid, varid(i), allvars(:,:,i) )
     CALL check(retcode)
     PRINT *,i, MAXVAL(allvars(:,:,i)), MINVAL(allvars(:,:,i))
   ENDDO
 
-  !debug: PRINT *,'leaving read',nx, ny, ncid
-    
   RETURN
 END
 
@@ -195,22 +171,18 @@ SUBROUTINE initialize_out(fname, ncid, varid, nvar, nbuoy, dimids)
   varnames(4) = "Final_Longitude"
   varnames(5) = "Drift_Distance"
   varnames(6) = "Drift_Bearing"
-!debug:  PRINT *,'assigned varnames'
   
 ! open
   retcode = nf90_create(fname, NF90_NOCLOBBER, ncid)
   CALL check(retcode)
-!debug:  PRINT *,'back from check = ',retcode
   
 ! dimensionalize
   retcode = nf90_def_dim(ncid, "nbuoy", nbuoy, x_dimid)
   CALL check(retcode)
   dimids = (/ x_dimid /)
-!debug:  PRINT *,'back from dimid'
 
 ! assign varid to varnames
   DO i = 1, nvar
-!debug:    PRINT *,'assigning varname ',i,trim(varnames(i))
     retcode = nf90_def_var(ncid, trim(varnames(i)), NF90_REAL, dimids, varid(i))
     CALL check(retcode)
   ENDDO
@@ -241,8 +213,6 @@ SUBROUTINE outvars(ncid, varid, nvar, buoys, nbuoy)
   distance = 0.
   bear = 0.
 
-  !debug: PRINT *,'entered outvars'
-
   DO k = 1, nbuoy
     var(k,1) = buoys(k)%ilat
     var(k,2) = buoys(k)%ilon
@@ -253,7 +223,6 @@ SUBROUTINE outvars(ncid, varid, nvar, buoys, nbuoy)
     var(k,6) = bear
   ENDDO
 
-  !debug: PRINT *,'about to try to put vars'
   !RG: separate initial write -- just ilat, ilon, from later writes, clat, clon, distance, bear
   DO i = 1, nvar
 
@@ -262,8 +231,6 @@ SUBROUTINE outvars(ncid, varid, nvar, buoys, nbuoy)
   ENDDO
 
   DEALLOCATE(var)
-
-  !debug: PRINT *,'leaving outvar'
 
   RETURN
 END subroutine outvars
@@ -293,7 +260,6 @@ SUBROUTINE writeout(ncid_out, varid_out, nvar_out, buoys, nbuoy, close)
   TYPE(drifter) :: buoys(nbuoy)
   LOGICAL, intent(in) :: close
 
-  !debug: PRINT *,'calling outvars, buoy1%x = ',buoys(1)%x
   CALL outvars(ncid_out, varid_out, nvar_out, buoys, nbuoy )
 
   IF (close) THEN

@@ -25,26 +25,20 @@ SUBROUTINE initial_read(fname, drift_name, outname, nx, ny, nvar, ncid, varid, &
 
 ! Forcing / velocities
   !Get first set of data and construct the local metric for drifting
-  !debug: PRINT *,' calling read ',nx, ny, nvar, ncid
   CALL read(nx, ny, nvar, ncid, varid, allvars)
-  !debug: PRINT *,'done with first read'
 
   ulat = allvars(:,:,4)
   ulon = allvars(:,:,3)
-  !debug: PRINT *,'about to call metric', MAXVAL(ulat), MAXVAL(ulon)
   CALL local_metric(ulat, ulon, dx, dy, rot, nx, ny)
-  !debug: PRINT *,'computed the local metric'
 
 !  !----------- Initialize buoys, this should be a read in 
 !  CALL initialize_drifter(drift_name, ncid_drift, varid_driftin, nvar_out, buoys)
 !  CALL close_out(ncid_drift)
 
 ! Initialize Output -- need definite sizes
-  !debug: 
   PRINT *,'about to initialize_out'
   nbuoy = 84700
   CALL initialize_out(outname, ncid_out, varid_out, nvar_out, nbuoy, outdimids)
-  !debug: 
   PRINT *,'initialized the output'
 
 END SUBROUTINE initial_read
