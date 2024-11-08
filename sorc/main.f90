@@ -8,7 +8,8 @@ PROGRAM newdrift
 
 ! Netcdf-related
   INTEGER nvar, nvar_out, nvar_drift
-  PARAMETER (nvar = 24)
+  !cice_inst: PARAMETER (nvar = 24)
+  PARAMETER (nvar = 7)
   PARAMETER (nvar_out = 6)
   PARAMETER (nvar_drift = 2)
   INTEGER ncid, varid(nvar)
@@ -41,26 +42,34 @@ PROGRAM newdrift
 ! Read from .nc file (or argument to main)
   INTEGER nx, ny
 ! Names
-  CHARACTER(90) fname, drift_name, outname
+  CHARACTER(90) fname, drift_name, outname, tmp, tmp2
   LOGICAL close
 
 
 ! -- Begin main for offline ----
-  READ (*,*) fname
-  READ (*,*) outname
-! Read in run parameters:
-  READ (*,*) dt
-  READ (*,*) nstep
-  READ (*,*) outfreq
-  PRINT *,'dt, nstep, outfreq = ',dt, nstep, outfreq
+  READ (*,*) tmp
+  OPEN(10, FILE=tmp, FORM='FORMATTED', STATUS='OLD')
 
+  READ (10,*) tmp2
+  fname = trim(tmp2)
+  READ (10,*) tmp
+  outname = trim(tmp)
+!debug: PRINT *,fname, outname
+
+! Read in run parameters:
+  READ (10,*) dt
+  READ (10,*) nstep
+  READ (10,*) outfreq
+  PRINT *,'dt, nstep, outfreq = ',dt, nstep, outfreq
 
 ! Forcing / velocities
   CALL initialize_in(nvar, fname, ncid, varid, nx, ny)
+!debug:  STOP
 
 ! Initialize Output -- need definite sizes
   ALLOCATE(allvars(nx, ny, nvar))
   ALLOCATE(ulat(nx, ny), ulon(nx, ny), dx(nx, ny), dy(nx, ny), rot(nx, ny))
+  ALLOCATE(aice(nx, ny))
 
   !RG: really initialize_io
   !Get first set of data and construct the local metric for drifting
@@ -68,19 +77,27 @@ PROGRAM newdrift
                     allvars, ulon, ulat, dx, dy, rot, &
                     dimids, ncid_out, varid_out, nvar_out, nbuoy)
   !debug: PRINT *, "done with initial_read"
-
-  u    = allvars(:,:,9)
-  v    = allvars(:,:,10)
-  !debug: PRINT *,"local metric dx, dy max = ",MAXVAL(dx), MAXVAL(dy)
-  !debug: PRINT *,"local metric dx, dy min = ",MINVAL(dx), MINVAL(dy)
-
+  !debug: 
+  PRINT *,"local metric dx, dy max = ",MAXVAL(dx), MAXVAL(dy)
+  !debug: 
+  PRINT *,"local metric dx, dy min = ",MINVAL(dx), MINVAL(dy)
   !debug: 
   PRINT *,"ulat, ulon max = ",MAXVAL(ulat), MAXVAL(ulon)
   !debug: 
   PRINT *,"ulat, ulon min = ",MINVAL(ulat), MINVAL(ulon)
 
-  ALLOCATE(aice(nx, ny))
-  aice = allvars(:,:,8)
+
+!cice_inst:
+!  aice = allvars(:,:,8)
+!2ds_ice:
+  aice = allvars(:,:,3)
+
+!cice_inst:
+!  u    = allvars(:,:,9)
+!  v    = allvars(:,:,10)
+!2ds_ice
+  u    = allvars(:,:,6)
+  v    = allvars(:,:,7)
 
   !---------------------------------------------------------
   !RG: Should com from initial read, reading in buoy file
@@ -134,8 +151,8 @@ PROGRAM newdrift
 
 ! First time step:
 
-  u = allvars(:,:,9)
-  v = allvars(:,:,10)
+  u = allvars(:,:,6)
+  v = allvars(:,:,7)
   !DEALLOCATE(allvars)
   !debug: 
   PRINT *,'calling run'

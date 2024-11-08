@@ -8,8 +8,9 @@ CONTAINS
 SUBROUTINE initialize_in(nvar, fname, ncid, varid, nx, ny)
   IMPLICIT none
 
-  CHARACTER(*) fname
-  INTEGER ncid, nvar
+  INTEGER ncid
+  INTEGER, intent(in) :: nvar
+  CHARACTER(*), intent(in) :: fname
   INTEGER, intent(out) :: nx, ny
 
 ! Names from rtofs output
@@ -20,32 +21,47 @@ SUBROUTINE initialize_in(nvar, fname, ncid, varid, nx, ny)
   INTEGER i
   INTEGER retcode
 
-  varnames(1) = "TLON"
-  varnames(2) = "TLAT"
-  varnames(3) = "ULON"
-  varnames(4) = "ULAT"
-  varnames(5) = "hi"
-  varnames(6) = "hs"
-  varnames(7) = "Tsfc"
-  varnames(8) = "aice"
-  varnames(9) = "uvel"
-  varnames(10) = "vvel"
-  varnames(11) = "fswdn"
-  varnames(12) = "flwdn"
-  varnames(13) = "snow"
-  varnames(14) = "snow_ai"
-  varnames(15) = "rain_ai"
-  varnames(16) = "sst"
-  varnames(17) = "uocn"
-  varnames(18) = "vocn"
-  varnames(19) = "meltt"
-  varnames(20) = "meltb"
-  varnames(21) = "meltl"
-  varnames(22) = "strength"
-  varnames(23) = "divu"
-  varnames(24) = "Tair"
-!debug: PRINT *,"named all 24 variables"
+  PRINT *,'entered initialize_in'
+  PRINT *,'nvar, fname, ncid, varid, nx, ny ',nvar, fname, ncid, varid, nx, ny
+!! This is the cice_inst variable set -- much more extensive
+!  varnames(1) = "TLON"
+!  varnames(2) = "TLAT"
+!  varnames(3) = "ULON"
+!  varnames(4) = "ULAT"
+!  varnames(5) = "hi"
+!  varnames(6) = "hs"
+!  varnames(7) = "Tsfc"
+!  varnames(8) = "aice"
+!  varnames(9) = "uvel"
+!  varnames(10) = "vvel"
+!  varnames(11) = "fswdn"
+!  varnames(12) = "flwdn"
+!  varnames(13) = "snow"
+!  varnames(14) = "snow_ai"
+!  varnames(15) = "rain_ai"
+!  varnames(16) = "sst"
+!  varnames(17) = "uocn"
+!  varnames(18) = "vocn"
+!  varnames(19) = "meltt"
+!  varnames(20) = "meltb"
+!  varnames(21) = "meltl"
+!  varnames(22) = "strength"
+!  varnames(23) = "divu"
+!  varnames(24) = "Tair"
+!debug: 
+!  PRINT *,"named all 24 cice_inst variables"
+!RG: make file type an input parameter 2ds_ice:
+  varnames(1) = "Longitude"
+  varnames(2) = "Latitude"
+  varnames(3) = "ice_coverage"
+  varnames(4) = "ice_temperature"
+  varnames(5) = "ice_thickness"
+  varnames(6) = "ice_uvelocity"
+  varnames(7) = "ice_vvelocity"
+!debug: PRINT *,"named all 7 2ds_ice variables"
+  
 
+!debug:  PRINT *,"fname = ",fname
   retcode = nf90_open(fname, NF90_NOWRITE, ncid)
   CALL check(retcode)
 !debug: PRINT *,"opened fname",fname
@@ -57,9 +73,10 @@ SUBROUTINE initialize_in(nvar, fname, ncid, varid, nx, ny)
   ENDDO
 
   nx = 4500
-  ny = 3297
+  ny = 3298
 
-  !debug: PRINT *,'leaving initialize_in'
+  !debug: 
+  PRINT *,'leaving initialize_in'
 
 
 RETURN
@@ -86,7 +103,7 @@ SUBROUTINE initial_read(fname, drift_name, outname, nx, ny, nvar, ncid, varid, &
   REAL, intent(out)   :: dx(nx, ny), dy(nx, ny), rot(nx, ny)
 
 ! Locals:
-  INTEGER i, j, k
+!  INTEGER i, j, k
 
 ! Allocate space for variables and initialize the netcdf reading
 
@@ -96,8 +113,12 @@ SUBROUTINE initial_read(fname, drift_name, outname, nx, ny, nvar, ncid, varid, &
   CALL read(nx, ny, nvar, ncid, varid, allvars)
   !debug: PRINT *,'done with first read'
 
-  ulat = allvars(:,:,4)
-  ulon = allvars(:,:,3)
+!cice_inst:
+!  ulat = allvars(:,:,4)
+!  ulon = allvars(:,:,3)
+!2ds_ice:
+  ulat = allvars(:,:,2)
+  ulon = allvars(:,:,1)
   !debug: PRINT *,'about to call metric', MAXVAL(ulat), MAXVAL(ulon)
   CALL local_metric(ulat, ulon, dx, dy, rot, nx, ny)
   !debug: PRINT *,'computed the local metric'
@@ -109,7 +130,7 @@ SUBROUTINE initial_read(fname, drift_name, outname, nx, ny, nvar, ncid, varid, &
 ! Initialize Output -- need definite sizes
   !debug: 
   PRINT *,'about to initialize_out'
-  nbuoy = 84700
+  nbuoy = 89700
   CALL initialize_out(outname, ncid_out, varid_out, nvar_out, nbuoy, outdimids)
   !debug: 
   PRINT *,'initialized the output'
@@ -162,7 +183,7 @@ SUBROUTINE initialize_out(fname, ncid, varid, nvar, nbuoy, dimids)
   INTEGER, intent(out) :: varid(nvar)
   INTEGER ncid, nbuoy
 
-  CHARACTER(90) varnames(nvar)
+  CHARACTER(20) varnames(nvar)
   INTEGER, intent(inout) :: dimids(1)
 
   INTEGER i, retcode
@@ -174,20 +195,25 @@ SUBROUTINE initialize_out(fname, ncid, varid, nvar, nbuoy, dimids)
   varnames(4) = "Final_Longitude"
   varnames(5) = "Drift_Distance"
   varnames(6) = "Drift_Bearing"
+  PRINT *,'assigned varnames'
   
-  nbuoy = 84700
+  nbuoy = 89700
 
 ! open
   retcode = nf90_create(fname, NF90_NOCLOBBER, ncid)
   CALL check(retcode)
+  PRINT *,'back from check = ',retcode
+  
 ! dimensionalize
   retcode = nf90_def_dim(ncid, "nbuoy", nbuoy, x_dimid)
   CALL check(retcode)
   dimids = (/ x_dimid /)
+  PRINT *,'back from dimid'
 
 ! assign varid to varnames
   DO i = 1, nvar
-    retcode = nf90_def_var(ncid, varnames(i), NF90_REAL, dimids, varid(i))
+    PRINT *,'assigning varname ',i,trim(varnames(i))
+    retcode = nf90_def_var(ncid, trim(varnames(i)), NF90_REAL, dimids, varid(i))
     CALL check(retcode)
   ENDDO
 
@@ -209,7 +235,7 @@ SUBROUTINE outvars(ncid, varid, nvar, buoys, nbuoy)
 
   INTEGER retcode
   REAL, allocatable :: var(:,:)
-  INTEGER i,j, k
+  INTEGER i, k
   REAL distance, bear
 
 !Note that netcdf dimensions are in C order, not fortran
