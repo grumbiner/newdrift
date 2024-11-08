@@ -37,7 +37,7 @@ PROGRAM newdrift
 
 !For drifter 
   CLASS(drifter), allocatable :: buoys(:)
-  INTEGER nbuoy, nactual
+  INTEGER nbuoys, nactual
 
 ! Read from .nc file (or argument to main)
   INTEGER nx, ny
@@ -75,7 +75,7 @@ PROGRAM newdrift
   !Get first set of data and construct the local metric for drifting
   CALL initial_read(fname, drift_name, outname, nx, ny, nvar, ncid, varid, &
                     allvars, ulon, ulat, dx, dy, rot, &
-                    dimids, ncid_out, varid_out, nvar_out, nbuoy)
+                    dimids, ncid_out, varid_out, nvar_out, nbuoys)
   !debug: PRINT *, "done with initial_read"
   !debug: 
   PRINT *,"local metric dx, dy max = ",MAXVAL(dx), MAXVAL(dy)
@@ -100,50 +100,20 @@ PROGRAM newdrift
   v    = allvars(:,:,7)
 
   !---------------------------------------------------------
-  !RG: Should com from initial read, reading in buoy file
-  ALLOCATE(buoys(nbuoy))
-  !Zero the buoys:
-  DO k = 1, nbuoy
-      buoys(k)%x = 0.0
-      buoys(k)%y = 0.0
-      buoys(k)%ilat = 0.0
-      buoys(k)%ilon = 0.0
-      buoys(k)%clat = 0.0
-      buoys(k)%clon = 0.0
-  ENDDO
+!  !RG: Should com from initial read, reading in buoy file
+  nbuoys = (nx/5)*(ny/5)
+  ALLOCATE(buoys(nbuoys))
+  PRINT *,'allocated the ',nbuoys,' buoys'
+
+  CALL zero_buoys(buoys, nbuoys)
+  PRINT *,'back from zero_buoys'
+
 ! Dummy for testing
-  k = 0
-  ratio = 5
-  imax = INT(nx/ratio)
-  jmax = INT(ny/ratio)
-  x = 0.0
-  y = 0.0
-  DO j = 1, jmax
-  DO i = 1, imax
-    IF (aice(i*ratio, j*ratio) > 0. .AND. aice(i*ratio,j*ratio) <= 1.0  .AND. &
-        dx(i*ratio, j*ratio) .NE. 0. .AND. dy(i*ratio, j*ratio) .NE. 0. .AND. &
-        ABS(u(i*ratio, j*ratio)) < 100. .AND. ABS(v(i*ratio, j*ratio)) < 100. ) THEN
-      !debug: PRINT *,'aice, dx, dy, u, v',aice(i*ratio, j*ratio), dx(i*ratio, j*ratio), &
-      !debug:   dy(i*ratio, j*ratio), u(i*ratio, j*ratio), v(i*ratio, j*ratio)
+  PRINT *,'calling dummy buoys'
+  CALL dummy_buoys(aice, dx, dy, u, v, ulat, ulon, nx, ny, buoys, nbuoys)
+  PRINT *,'returned from calling dummy buoys'
 
-      k = k + 1
-      buoys(k)%ilat = ulat(i*ratio, j*ratio)
-      buoys(k)%ilon = ulon(i*ratio, j*ratio)
-      buoys(k)%clat = ulat(i*ratio, j*ratio)
-      buoys(k)%clon = ulon(i*ratio, j*ratio)
-
-      !RG: Must compute physical value here, location vs. grid mesh function
-      !CALL ll_to_xy(buoys(k)%ilat, buoys(k)%ilon, ulat, ulon, x, y, nx, ny)
-      buoys(k)%x = i*ratio
-      buoys(k)%y = j*ratio
-
-    ENDIF
-  ENDDO
-  !debug: PRINT *,1,j,buoys(1,j)%ilat ,  buoys(1,j)%ilon 
-  ENDDO
-  !debug: 
-  PRINT *,'done in main assigning buoys, nactual = ', k
-  nactual = k
+  nactual = nbuoys
 
 !----------------------------------------------------------------
 ! RUN

@@ -22,7 +22,7 @@ SUBROUTINE initialize_in(nvar, fname, ncid, varid, nx, ny)
   INTEGER retcode
 
   PRINT *,'entered initialize_in'
-  PRINT *,'nvar, fname, ncid, varid, nx, ny ',nvar, fname, ncid, varid, nx, ny
+!debug:  PRINT *,'nvar, fname, ncid, varid, nx, ny ',nvar, fname, ncid, varid, nx, ny
 !! This is the cice_inst variable set -- much more extensive
 !  varnames(1) = "TLON"
 !  varnames(2) = "TLAT"
@@ -125,12 +125,12 @@ SUBROUTINE initial_read(fname, drift_name, outname, nx, ny, nvar, ncid, varid, &
 
 !  !----------- Initialize buoys, this should be a read in 
 !  CALL initialize_drifter(drift_name, ncid_drift, varid_driftin, nvar_out, buoys)
+  nbuoy = 89700
 !  CALL close_out(ncid_drift)
 
 ! Initialize Output -- need definite sizes
   !debug: 
   PRINT *,'about to initialize_out'
-  nbuoy = 89700
   CALL initialize_out(outname, ncid_out, varid_out, nvar_out, nbuoy, outdimids)
   !debug: 
   PRINT *,'initialized the output'
@@ -195,24 +195,22 @@ SUBROUTINE initialize_out(fname, ncid, varid, nvar, nbuoy, dimids)
   varnames(4) = "Final_Longitude"
   varnames(5) = "Drift_Distance"
   varnames(6) = "Drift_Bearing"
-  PRINT *,'assigned varnames'
+!debug:  PRINT *,'assigned varnames'
   
-  nbuoy = 89700
-
 ! open
   retcode = nf90_create(fname, NF90_NOCLOBBER, ncid)
   CALL check(retcode)
-  PRINT *,'back from check = ',retcode
+!debug:  PRINT *,'back from check = ',retcode
   
 ! dimensionalize
   retcode = nf90_def_dim(ncid, "nbuoy", nbuoy, x_dimid)
   CALL check(retcode)
   dimids = (/ x_dimid /)
-  PRINT *,'back from dimid'
+!debug:  PRINT *,'back from dimid'
 
 ! assign varid to varnames
   DO i = 1, nvar
-    PRINT *,'assigning varname ',i,trim(varnames(i))
+!debug:    PRINT *,'assigning varname ',i,trim(varnames(i))
     retcode = nf90_def_var(ncid, trim(varnames(i)), NF90_REAL, dimids, varid(i))
     CALL check(retcode)
   ENDDO

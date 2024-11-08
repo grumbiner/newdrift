@@ -1,4 +1,4 @@
-OBJ = math.o drifter.o io_nc.o main.o 
+OBJ = math.o drifter.o io_nc.o main.o initialize_drifter.o 
 
 include mk.this
 

@@ -13,7 +13,8 @@ cp ../fix/drift_ref.nc drift_in.nc
 #forecast hours 072 to 192 by 3
 
 #base=$HOME/rtofs/
-base=/Volumes/Data/rtofs/
+#macos base=/Volumes/Data/rtofs/
+base=$HOME/clim_data/rtofs/rtofs.20241001/
 
 #for hhh in 000
 hhh=000

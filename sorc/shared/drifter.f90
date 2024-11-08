@@ -10,11 +10,24 @@ MODULE drifter_mod
     REAL ilat, ilon  ! initial latitude-longitude
     REAL clat, clon  ! current latitude-longitude
   CONTAINS
-    PROCEDURE, pass :: move
+    PROCEDURE, pass :: move, zero
   END TYPE drifter
 
 
 CONTAINS
+  SUBROUTINE zero(buoy, k)
+    IMPLICIT none
+    CLASS(drifter), intent(inout) :: buoy
+    INTEGER k
+    buoy%x = 0.
+    buoy%y = 0.
+    buoy%ilat = 0.
+    buoy%ilon = 0.
+    buoy%clat = 0.
+    buoy%clon = 0.
+    RETURN
+  END SUBROUTINE zero 
+
   SUBROUTINE move(buoy, u, v, dx, dy, dt, nx, ny)
 !note dx, dy are the mesh variables
     IMPLICIT none
