@@ -8,8 +8,9 @@ CONTAINS
 SUBROUTINE initialize_in(nvar, fname, ncid, varid, nx, ny)
   IMPLICIT none
 
-  CHARACTER(*) fname
-  INTEGER ncid, nvar
+  INTEGER ncid
+  INTEGER, intent(in) :: nvar
+  CHARACTER(*), intent(in) :: fname
   INTEGER, intent(out) :: nx, ny
 
 ! Names from rtofs output
@@ -20,47 +21,52 @@ SUBROUTINE initialize_in(nvar, fname, ncid, varid, nx, ny)
   INTEGER i
   INTEGER retcode
 
-  varnames(1) = "TLON"
-  varnames(2) = "TLAT"
-  varnames(3) = "ULON"
-  varnames(4) = "ULAT"
-  varnames(5) = "hi"
-  varnames(6) = "hs"
-  varnames(7) = "Tsfc"
-  varnames(8) = "aice"
-  varnames(9) = "uvel"
-  varnames(10) = "vvel"
-  varnames(11) = "fswdn"
-  varnames(12) = "flwdn"
-  varnames(13) = "snow"
-  varnames(14) = "snow_ai"
-  varnames(15) = "rain_ai"
-  varnames(16) = "sst"
-  varnames(17) = "uocn"
-  varnames(18) = "vocn"
-  varnames(19) = "meltt"
-  varnames(20) = "meltb"
-  varnames(21) = "meltl"
-  varnames(22) = "strength"
-  varnames(23) = "divu"
-  varnames(24) = "Tair"
-!debug: PRINT *,"named all 24 variables"
+  PRINT *,'entered initialize_in'
+!! This is the cice_inst variable set -- much more extensive
+!  varnames(1) = "TLON"
+!  varnames(2) = "TLAT"
+!  varnames(3) = "ULON"
+!  varnames(4) = "ULAT"
+!  varnames(5) = "hi"
+!  varnames(6) = "hs"
+!  varnames(7) = "Tsfc"
+!  varnames(8) = "aice"
+!  varnames(9) = "uvel"
+!  varnames(10) = "vvel"
+!  varnames(11) = "fswdn"
+!  varnames(12) = "flwdn"
+!  varnames(13) = "snow"
+!  varnames(14) = "snow_ai"
+!  varnames(15) = "rain_ai"
+!  varnames(16) = "sst"
+!  varnames(17) = "uocn"
+!  varnames(18) = "vocn"
+!  varnames(19) = "meltt"
+!  varnames(20) = "meltb"
+!  varnames(21) = "meltl"
+!  varnames(22) = "strength"
+!  varnames(23) = "divu"
+!  varnames(24) = "Tair"
+!RG: make file type an input parameter 2ds_ice:
+  varnames(1) = "Longitude"
+  varnames(2) = "Latitude"
+  varnames(3) = "ice_coverage"
+  varnames(4) = "ice_temperature"
+  varnames(5) = "ice_thickness"
+  varnames(6) = "ice_uvelocity"
+  varnames(7) = "ice_vvelocity"
+  
 
   retcode = nf90_open(fname, NF90_NOWRITE, ncid)
   CALL check(retcode)
-!debug: PRINT *,"opened fname",fname
 
   DO i = 1, nvar
-    !debug: PRINT *,i,varnames(i)
     retcode = nf90_inq_varid(ncid, varnames(i), varid(i))
     CALL check(retcode)
   ENDDO
 
   nx = 4500
-  ny = 3297
-
-  !debug: PRINT *,'leaving initialize_in'
-
+  ny = 3298
 
 RETURN
 END subroutine initialize_in
@@ -86,33 +92,29 @@ SUBROUTINE initial_read(fname, drift_name, outname, nx, ny, nvar, ncid, varid, &
   REAL, intent(out)   :: dx(nx, ny), dy(nx, ny), rot(nx, ny)
 
 ! Locals:
-  INTEGER i, j, k
+!  INTEGER i, j, k
 
 ! Allocate space for variables and initialize the netcdf reading
 
 ! Forcing / velocities
   !Get first set of data and construct the local metric for drifting
-  !debug: PRINT *,' calling read ',nx, ny, nvar, ncid
   CALL read(nx, ny, nvar, ncid, varid, allvars)
-  !debug: PRINT *,'done with first read'
 
-  ulat = allvars(:,:,4)
-  ulon = allvars(:,:,3)
-  !debug: PRINT *,'about to call metric', MAXVAL(ulat), MAXVAL(ulon)
+!cice_inst:
+!  ulat = allvars(:,:,4)
+!  ulon = allvars(:,:,3)
+!2ds_ice:
+  ulat = allvars(:,:,2)
+  ulon = allvars(:,:,1)
   CALL local_metric(ulat, ulon, dx, dy, rot, nx, ny)
-  !debug: PRINT *,'computed the local metric'
 
 !  !----------- Initialize buoys, this should be a read in 
 !  CALL initialize_drifter(drift_name, ncid_drift, varid_driftin, nvar_out, buoys)
+  nbuoy = 89700
 !  CALL close_out(ncid_drift)
 
 ! Initialize Output -- need definite sizes
-  !debug: 
-  PRINT *,'about to initialize_out'
-  nbuoy = 84700
   CALL initialize_out(outname, ncid_out, varid_out, nvar_out, nbuoy, outdimids)
-  !debug: 
-  PRINT *,'initialized the output'
 
 END SUBROUTINE initial_read
 
@@ -125,19 +127,14 @@ SUBROUTINE read(nx, ny, nvars, ncid, varid, allvars)
   
   INTEGER i, retcode
   
-  !debug: PRINT *,'entered read',nx, ny, ncid
   !got nx, ny from the .nc file, in initialize_in
 
   DO i = 1, nvars
-    !debug: PRINT *,i,"calling nf90 get var"
-
     retcode = nf90_get_var(ncid, varid(i), allvars(:,:,i) )
     CALL check(retcode)
     PRINT *,i, MAXVAL(allvars(:,:,i)), MINVAL(allvars(:,:,i))
   ENDDO
 
-  !debug: PRINT *,'leaving read',nx, ny, ncid
-    
   RETURN
 END
 
@@ -162,7 +159,7 @@ SUBROUTINE initialize_out(fname, ncid, varid, nvar, nbuoy, dimids)
   INTEGER, intent(out) :: varid(nvar)
   INTEGER ncid, nbuoy
 
-  CHARACTER(90) varnames(nvar)
+  CHARACTER(20) varnames(nvar)
   INTEGER, intent(inout) :: dimids(1)
 
   INTEGER i, retcode
@@ -175,11 +172,10 @@ SUBROUTINE initialize_out(fname, ncid, varid, nvar, nbuoy, dimids)
   varnames(5) = "Drift_Distance"
   varnames(6) = "Drift_Bearing"
   
-  nbuoy = 84700
-
 ! open
   retcode = nf90_create(fname, NF90_NOCLOBBER, ncid)
   CALL check(retcode)
+  
 ! dimensionalize
   retcode = nf90_def_dim(ncid, "nbuoy", nbuoy, x_dimid)
   CALL check(retcode)
@@ -187,7 +183,7 @@ SUBROUTINE initialize_out(fname, ncid, varid, nvar, nbuoy, dimids)
 
 ! assign varid to varnames
   DO i = 1, nvar
-    retcode = nf90_def_var(ncid, varnames(i), NF90_REAL, dimids, varid(i))
+    retcode = nf90_def_var(ncid, trim(varnames(i)), NF90_REAL, dimids, varid(i))
     CALL check(retcode)
   ENDDO
 
@@ -209,15 +205,13 @@ SUBROUTINE outvars(ncid, varid, nvar, buoys, nbuoy)
 
   INTEGER retcode
   REAL, allocatable :: var(:,:)
-  INTEGER i,j, k
+  INTEGER i, k
   REAL distance, bear
 
 !Note that netcdf dimensions are in C order, not fortran
   ALLOCATE(var(nbuoy, nvar))
   distance = 0.
   bear = 0.
-
-  !debug: PRINT *,'entered outvars'
 
   DO k = 1, nbuoy
     var(k,1) = buoys(k)%ilat
@@ -229,7 +223,6 @@ SUBROUTINE outvars(ncid, varid, nvar, buoys, nbuoy)
     var(k,6) = bear
   ENDDO
 
-  !debug: PRINT *,'about to try to put vars'
   !RG: separate initial write -- just ilat, ilon, from later writes, clat, clon, distance, bear
   DO i = 1, nvar
 
@@ -238,8 +231,6 @@ SUBROUTINE outvars(ncid, varid, nvar, buoys, nbuoy)
   ENDDO
 
   DEALLOCATE(var)
-
-  !debug: PRINT *,'leaving outvar'
 
   RETURN
 END subroutine outvars
@@ -269,7 +260,6 @@ SUBROUTINE writeout(ncid_out, varid_out, nvar_out, buoys, nbuoy, close)
   TYPE(drifter) :: buoys(nbuoy)
   LOGICAL, intent(in) :: close
 
-  !debug: PRINT *,'calling outvars, buoy1%x = ',buoys(1)%x
   CALL outvars(ncid_out, varid_out, nvar_out, buoys, nbuoy )
 
   IF (close) THEN

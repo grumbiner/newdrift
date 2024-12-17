@@ -13,7 +13,6 @@ SUBROUTINE writeout(ncid_out, varid_out, nvar_out, buoys, nbuoy, close)
   TYPE(drifter) :: buoys(nbuoy)
   LOGICAL, intent(in) :: close
 
-  !debug: PRINT *,'calling outvars, buoy1%x = ',buoys(1)%x
   CALL outvars(ncid_out, varid_out, nvar_out, buoys, nbuoy )
 
   IF (close) THEN

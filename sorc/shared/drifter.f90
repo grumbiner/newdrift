@@ -10,11 +10,24 @@ MODULE drifter_mod
     REAL ilat, ilon  ! initial latitude-longitude
     REAL clat, clon  ! current latitude-longitude
   CONTAINS
-    PROCEDURE, pass :: move
+    PROCEDURE, pass :: move, zero
   END TYPE drifter
 
 
 CONTAINS
+  SUBROUTINE zero(buoy, k)
+    IMPLICIT none
+    CLASS(drifter), intent(inout) :: buoy
+    INTEGER k
+    buoy%x = 0.
+    buoy%y = 0.
+    buoy%ilat = 0.
+    buoy%ilon = 0.
+    buoy%clat = 0.
+    buoy%clon = 0.
+    RETURN
+  END SUBROUTINE zero 
+
   SUBROUTINE move(buoy, u, v, dx, dy, dt, nx, ny)
 !note dx, dy are the mesh variables
     IMPLICIT none
@@ -28,21 +41,12 @@ CONTAINS
     REAL deltax, deltay
     INTEGER ti, tj
 
-    !debug: PRINT *,'in move',buoy%x, buoy%y, nx, ny
-
     ti = NINT(buoy%x)
     tj = NINT(buoy%y)
     !RG:  These could be interpolated (bilinear, ...)
     deltax = u(ti, tj) * dt
     deltay = v(ti, tj) * dt
 
-    !verbose: PRINT *,'move deltax deltay, dx dy', deltax, deltay, dx(ti,tj), dy(ti,tj)
-    !debug:
-    IF (dx(ti, tj) .EQ. 0. .OR. dy(ti, tj) .EQ. 0) THEN
-      WRITE (*,9001) ti, tj, deltax, deltay, dx(ti,tj), dy(ti,tj), u(ti,tj), v(ti,tj), buoy%x, buoy%y
-    ENDIF
- 9001 FORMAT(2I4, 8F10.4)
-   
 !where deltax < dx, deltax > -x-int(x):
     !IF (deltax < dx) THEN               !note, deltas could be negative
     buoy%x = buoy%x + deltax/dx(ti, tj)
@@ -65,25 +69,12 @@ SUBROUTINE run(buoys, nbuoy, u, v, dx, dy, nx, ny, dt, dtout)
 
   INTEGER k
 
-  !debug: PRINT *,'entered run, nbuoy = ',nbuoy
-  !debug: PRINT *,'nx ny = ',nx, ny
-  !debug: PRINT *,'dt = ',dt
-  !debug: PRINT *,'u ',MAXVAL(u), MINVAL(u)
-  !debug: PRINT *,'v ',MAXVAL(v), MINVAL(v)
-  !debug: PRINT *,'dx ',MAXVAL(dx), MINVAL(dx)
-  !debug: PRINT *,'dy ',MAXVAL(dy), MINVAL(dy)
 
   DO k = 1, nbuoy
-    !debug: IF ( MOD(k,1000) .EQ. 0) THEN
-      !debug: PRINT *,'k = ',k, buoys(k)%x, buoys(k)%ilat, buoys(k)%clon
-    !debug: ENDIF
-    !debug: PRINT *,'buoy k = ',k
-
     !c-like (object-like) 
     CALL buoys(k)%move(u, v, dx, dy, dt, nx, ny)
 
   ENDDO
-  !debug: PRINT *,'leaving run'
 
   ! output time level if requested
 

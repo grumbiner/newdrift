@@ -1,0 +1,35 @@
+basic:
+  drifter lat-lon
+  input u,v,gridtype (B, C),lat-lons of u,v,p 
+    dt, dtout 
+
+  read:  in position + perhaps name
+  offline: read files for u,v,latlons, ...
+  run:   compute locations, distance and bearing between points, pass to .nc
+  write: out time, position, distance and bearing from start
+
+  -- parallelized (esp. inline)
+     -- handle drifter passing out of domain
+     -- -- > reference processor number that handles re-partitioning, knows tiling
+  -- inline or offline build/use
+
+0: interpolations to get velocities -- input(param, gridlat, gridlon, ) (u,v,p staggers)
+  Nearest neighbor
+  Bilinear
+  16 pt
+  ...
+
+0: time evolution
+  Euler forward
+  RK4
+
+2: 
+  drifter has properties (chemical, radiological, biological, ...)
+    and functions to evolve them
+
+3:
+  lat-lon-(z, layer, isopycnal)
+  input also: w
+
+stokes drift
+
