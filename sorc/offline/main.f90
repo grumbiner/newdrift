@@ -46,7 +46,7 @@ PROGRAM newdrift
   CHARACTER(300) drift_name
 
 ! Read from .nc file (or argument to main)
-  INTEGER nx, ny
+  INTEGER model, nx, ny
 ! Names
   CHARACTER(300) fname, outname, tmp, tmp2
   LOGICAL closeout
@@ -73,6 +73,7 @@ PROGRAM newdrift
   !debug: PRINT *,'dt, nstep, outfreq, restart = ',dt, nstep, outfreq, restart
 
 ! RG: Read in .nc variable names
+  READ (10,*) model
   DO i = 1, nvar
     READ (10,*) varnames(i)
   ENDDO
@@ -85,7 +86,7 @@ PROGRAM newdrift
 ! Initialize input Forcing / velocities
   !debug: PRINT *,'calling initialize_in'
 ! RG: add varnames to arg list
-  CALL initialize_in(nvar, trim(fname), ncid, varid, varnames, xname, yname, nx, ny)
+  CALL initialize_in(nvar, trim(fname), ncid, varid, varnames, xname, yname, nx, ny, model)
 !RG: really initialize_io
   !Get first set of data and construct the local metric for drifting
   ! also constructs xmetric

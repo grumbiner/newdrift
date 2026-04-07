@@ -6,11 +6,11 @@ MODULE io
 
 CONTAINS
 
-SUBROUTINE initialize_in(nvar, fname, ncid, varid, varnames, xname, yname, nx, ny)
+SUBROUTINE initialize_in(nvar, fname, ncid, varid, varnames, xname, yname, nx, ny, model)
 !  USE metric_mod
   IMPLICIT none
 
-  INTEGER, intent(in) :: nvar
+  INTEGER, intent(in) :: nvar, model
   CHARACTER(*), intent(in) :: fname
   INTEGER, intent(out) :: nx, ny
   INTEGER, intent(out) :: ncid
@@ -25,48 +25,7 @@ SUBROUTINE initialize_in(nvar, fname, ncid, varid, varnames, xname, yname, nx, n
   INTEGER retcode
 
   !debug: PRINT *,'entered initialize_in'
-!! This is the rtofs cice_inst variable set -- much more extensive
-!  varnames(1) = "TLON"
-!  varnames(2) = "TLAT"
-!  varnames(3) = "ULON"
-!  varnames(4) = "ULAT"
-!  varnames(5) = "hi"
-!  varnames(6) = "hs"
-!  varnames(7) = "Tsfc"
-!  varnames(8) = "aice"
-!  varnames(9) = "uvel"
-!  varnames(10) = "vvel"
-!  varnames(11) = "fswdn"
-!  varnames(12) = "flwdn"
-!  varnames(13) = "snow"
-!  varnames(14) = "snow_ai"
-!  varnames(15) = "rain_ai"
-!  varnames(16) = "sst"
-!  varnames(17) = "uocn"
-!  varnames(18) = "vocn"
-!  varnames(19) = "meltt"
-!  varnames(20) = "meltb"
-!  varnames(21) = "meltl"
-!  varnames(22) = "strength"
-!  varnames(23) = "divu"
-!  varnames(24) = "Tair"
-!RG: make file type an input parameter 2ds_ice:
-  !RTOFS
-  !varnames(1) = "Longitude"
-  !varnames(2) = "Latitude"
-  !varnames(3) = "ice_coverage"
-  !varnames(4) = "ice_temperature"
-  !varnames(5) = "ice_thickness"
-  !varnames(6) = "ice_uvelocity"
-  !varnames(7) = "ice_vvelocity"
-  !UFS
-  !varnames(1) = "TLON"
-  !varnames(2) = "TLAT"
-  !varnames(3) = "aice_h"
-  !varnames(4) = "Tsfc_h"
-  !varnames(5) = "hi_h"
-  !varnames(6) = "uvel_h"
-  !varnames(7) = "vvel_h"
+!Note: varnames are defined in files like rtofs.vars
   
   !debug: PRINT *,'trying to open ',fname, len(fname)
   retcode = nf90_open(fname, NF90_NOWRITE, ncid)
@@ -83,17 +42,22 @@ SUBROUTINE initialize_in(nvar, fname, ncid, varid, varnames, xname, yname, nx, n
   nyname = yname
   !debug: PRINT *,'xname, yname',xname, yname
   !RG: Read nx, ny in from netcdf file -- 
-  ! rtofs
-  retcode = nf90_inquire_dimension(ncid, 3, nxname, nx)
-  CALL check(retcode)
-  retcode = nf90_inquire_dimension(ncid, 2, nyname, ny)
-  CALL check(retcode)
 
+  IF (model .eq. RTOFS) THEN
+    retcode = nf90_inquire_dimension(ncid, 3, nxname, nx)
+    CALL check(retcode)
+    retcode = nf90_inquire_dimension(ncid, 2, nyname, ny)
+    CALL check(retcode)
+  ELSEIF (model .eq. UFS) THEN
   !!ufs
-  !retcode = nf90_inquire_dimension(ncid, 2, nxname, nx)
-  !CALL check(retcode)
-  !retcode = nf90_inquire_dimension(ncid, 3, nyname, ny)
-  !CALL check(retcode)
+    retcode = nf90_inquire_dimension(ncid, 2, nxname, nx)
+    CALL check(retcode)
+    retcode = nf90_inquire_dimension(ncid, 3, nyname, ny)
+    CALL check(retcode)
+  ELSE
+    PRINT *,'model number is out of range ',model
+    STOP
+  ENDIF
 
   !debug: PRINT *,'leaving initialize_in', nx, ny
 

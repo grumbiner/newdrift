@@ -9,26 +9,26 @@
 
 set -x
 
-cd $HOME/rgdev/newdrift/scripts
+cd $HOME/rgdev/devdrift/scripts
 
-export tag=20241211
-export COMOUT=$HOME/noscrub/newdrift_retro
+export PDY=20250601
+export COMOUT=$HOME/noscrub/devdrift_retro
 if [ ! -d $COMOUT ] ; then
   mkdir -p $COMOUT
 fi
 
 export end=`date +"%Y%m%d"`
-export end=$tag
-export end=20250117
+export end=20250601
+export end=$PDY
 
-while [ $tag -le $end ]
+while [ $PDY -le $end ]
 do
-  if [ ! -d $COMOUT/$tag ] ; then
-    time ./ufs.sh > ${tag}.out
+  if [ ! -d $COMOUT/$PDY ] ; then
+    time ./retro.sh > ${PDY}.out
   else
-    echo zzz have $tag already
+    echo zzz have $PDY already
   fi
 
-  tag=`expr $tag + 1`
-  tag=`$HOME/bin/dtgfix3 $tag`
+  PDY=`expr $PDY + 1`
+  PDY=`$HOME/bin/dtgfix3 $PDY`
 done

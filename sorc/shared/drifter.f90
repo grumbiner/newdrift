@@ -7,6 +7,8 @@ MODULE drifter_mod
   USE constants
 
   IMPLICIT none
+  INTEGER, PARAMETER :: RTOFS = 1
+  INTEGER, PARAMETER :: UFS = 2
   TYPE, public :: drifter
     REAL(kind=real64) :: x, y        ! current i,j location
     REAL(kind=real64) :: ilat, ilon  ! initial latitude-longitude
