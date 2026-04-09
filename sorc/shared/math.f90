@@ -62,7 +62,7 @@ SUBROUTINE bearing(lat1, lon1, lat2, lon2, dist, dir)
   IMPLICIT none
   REAL(kind=real64), intent(in) :: lat1, lon1, lat2, lon2
   REAL(kind=real64), intent(out) :: dist, dir
-  REAL(kind=real64) :: harcdis
+  REAL(kind=real64) :: harcdis, dlon
 
   IF (lat1 >= flag .or. lon1 >= flag .or. lat2 >= flag .or. lon2 >= flag) THEN
     dist = flag
@@ -71,9 +71,10 @@ SUBROUTINE bearing(lat1, lon1, lat2, lon2, dist, dir)
   ENDIF
 
   dist = harcdis(lat1, lon1, lat2, lon2)
-  dir  = atan2(sin((lon1-lon2)*rpd)*cos(lat2*rpd) , &
+  dlon = lon2-lon1
+  dir  = atan2(sin(dlon*rpd)*cos(lat2*rpd) , &
                cos(lat1*rpd)*sin(lat2*rpd) -        &
-               sin(lat1*rpd)*cos(lat2*rpd)*cos((lon1-lon2)*rpd) )
+               sin(lat1*rpd)*cos(lat2*rpd)*cos(dlon*rpd) )
   dir = dir / rpd
   IF (dir < 0.) THEN
     dir = dir + 360.
