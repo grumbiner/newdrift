@@ -1,4 +1,4 @@
-The output is at ftp://ftpprd.ncep.noaa.gov/pub/data/nccf/com/rtofs/prod/rtofs.YYYYMMDD
+The output is at https://nomads.ncep.noaa.gov/pub/data/nccf/com/rtofs/prod/rtofs.YYYYMMDD
 where YYYYMMDD is the 8 digit date, 20220201 today.
 
 The files to use are rtofs_glo_2ds_fHHH_ice.nc

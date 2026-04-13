@@ -25,7 +25,7 @@ export end=20260409
 while [ $PDY -le $end ]
 do
   if [ ! -d $COMOUT/$PDY ] ; then
-    time ./retro.sh > ${PDY}.out
+    time ./ufs.sh > ${PDY}.out
   else
     echo zzz have $PDY already
   fi
