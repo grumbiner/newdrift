@@ -5,7 +5,7 @@
 #PBS -j oe
 #PBS -A ICE-DEV
 #PBS -q dev
-#PBS -l walltime=6:00:00
+#PBS -l walltime=8:00:00
 #PBS -l select=1:ncpus=1
 
 #ursa
@@ -31,7 +31,7 @@ cd /lfs/h2/emc/ptmp/wx21rg/devdrift.$pid
 #mkdir -p /scratch3/NCEPDEV/stmp/wx21rg/devdrift.$pid
 #cd /scratch3/NCEPDEV/stmp/wx21rg/devdrift.$pid
 
-export PDY=20251101
+export PDY=20260201
 export COMOUT=$HOME/noscrub/devdrift
 export end=`date +"%Y%m%d"`
 export end=20260411
