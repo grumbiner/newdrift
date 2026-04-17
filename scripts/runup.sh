@@ -34,7 +34,7 @@ cd /lfs/h2/emc/ptmp/wx21rg/devdrift.$pid
 export PDY=20260201
 export COMOUT=$HOME/noscrub/devdrift
 export end=`date +"%Y%m%d"`
-export end=20260411
+#export end=20260411
 
 while [ $PDY -le $end ]
 do
